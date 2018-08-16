@@ -12,12 +12,12 @@ of the map on the same column as the end.
 
 Here is an example map:
 ```
-   |
-    8 1 3 5
-   * 4 5 6
- 3 8 9 4
-1 5 9 &
-      |
+ |
+8 1 3 5
+ * 4 5 6
+  3 8 9 4
+   1 5 9 &
+         |
 ```
 
 The pathfinding agents return a list of directions they moved in. Their paths 
