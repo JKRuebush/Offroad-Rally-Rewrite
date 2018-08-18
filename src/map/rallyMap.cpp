@@ -113,16 +113,18 @@ Point& Point::operator=(const Point& other) {
 // RallyMap
 //-----------------------------------------------------------------------------
 
-size_t RallyMap::getHeight() const { return height; }
+uint RallyMap::getHeight() const { return height; }
 
-size_t RallyMap::getWidth() const { return width; }
+uint RallyMap::getWidth() const { return width; }
 
 Point RallyMap::getStart() const { return start; }
 
 // If the given Point is the same as the finish or out of bounds this
 // throws an exception.
 void RallyMap::setStart(Point newStart) {
-    if(newStart.x >= width || newStart.x < 0 || newStart.y >= height || newStart.y < 0) {
+    if(newStart.x < 0 || static_cast<uint>(newStart.x) >= width || 
+        newStart.y < 0 || static_cast<uint>(newStart.y) >= height) {
+
         throw std::range_error("invalid position");
     }
 
@@ -138,7 +140,9 @@ Point RallyMap::getFinish() const { return finish; }
 // If the given Point is the same as the start or out of bounds this
 // throws an exception.
 void RallyMap::setFinish(Point newFinish) {
-    if(newFinish.x >= width || newFinish.x < 0 || newFinish.y >= height || newFinish.y < 0) {
+    if(newFinish.x < 0 || static_cast<uint>(newFinish.x) >= width || 
+        newFinish.y < 0 || static_cast<uint>(newFinish.y) >= height) {
+
         throw std::range_error("invalid position");
     }
 
@@ -164,7 +168,9 @@ void RallyMap::randomizeRace() {
 
 // Throws an exception if the position is out of bounds.
 uint RallyMap::getRoughness(Point pos) const {
-    if(pos.x > width || pos.x < 0 || pos.y > height || pos.y < 0) {
+    if(pos.x < 0 || static_cast<uint>(pos.x) > width || 
+        pos.y < 0 || static_cast<uint>(pos.y) > height) {
+
         throw std::range_error("invalid position");
     }
 
@@ -175,7 +181,9 @@ uint RallyMap::getRoughness(Point pos) const {
 // Values above the max roughness are set to the max.
 // Throws an exception if the position is out of bounds.
 void RallyMap::setRoughness(Point pos, uint newRoughness) {
-    if(pos.x > width || pos.x < 0 || pos.y > height || pos.y < 0) {
+    if(pos.x < 0 || static_cast<uint>(pos.x) > width || 
+        pos.y < 0 || static_cast<uint>(pos.y) > height) {
+
         throw std::range_error("invalid position");
     }
 
@@ -215,7 +223,7 @@ void RallyMap::setMap(Point start, Point finish, const std::vector<std::vector<u
         throw std::invalid_argument("the template is too small");
     }
 
-    for(size_t i = 0; i < height; ++i) {
+    for(uint i = 0; i < height; ++i) {
         if(mapTemplate[i].size() != width) {
             throw std::invalid_argument("the template cannot be jagged");
         }
@@ -251,7 +259,7 @@ RallyMap::RallyMap(uint width, uint height): start(Point(-1,-1)), finish(Point(-
     this->height = height;
     this->width = width;
 
-    for(size_t y = 0; y < height; ++y) {
+    for(uint y = 0; y < height; ++y) {
         roughness.push_back(std::vector<uint>(width, 1));
     }
 
@@ -272,7 +280,7 @@ RallyMap::RallyMap(Point startPos, Point finishPos,
 
 // Copy constructor
 RallyMap::RallyMap(const RallyMap& other): width(other.width), height(other.height), 
-    roughness(other.roughness), start(other.start), finish(other.finish) {}
+    start(other.start), finish(other.finish), roughness(other.roughness) {}
 
 // Calculates where the given path ends, how long to get there, and if it
 // ends on the finish.
@@ -355,26 +363,26 @@ Point RallyMap::getDestination(Point pos, Direction dir) const {
     switch(dir) {
         // North       x+1, y-1
         case Direction::North:
-            if(pos.x + 1 < width && pos.y > 0) {
+            if(static_cast<uint>(pos.x + 1) < width && pos.y > 0) {
                 pos.x += 1;
                 pos.y -= 1;
             }
             break;
         // NorthEast   x+1
         case Direction::NorthEast:
-            if(pos.x + 1 < width) {
+            if(static_cast<uint>(pos.x + 1) < width) {
                 pos.x += 1;
             }
             break;
         // SouthEast   y+1
         case Direction::SouthEast:
-            if(pos.y + 1 < height) {
+            if(static_cast<uint>(pos.y + 1) < height) {
                 pos.y += 1;
             }
             break;
         // South       x-1, y+1
         case Direction::South:
-            if(pos.x > 0 && pos.y + 1 < height) {
+            if(pos.x > 0 && static_cast<uint>(pos.y + 1) < height) {
                 pos.x -= 1;
                 pos.y += 1;
             }
@@ -405,18 +413,18 @@ std::string RallyMap::toString() const {
     }
     out += "|\n";
 
-    for(size_t y = 0; y < height; ++y) {
+    for(uint y = 0; y < height; ++y) {
         // Add front spacing
-        for(size_t space = 0; space < y; ++space) {
+        for(uint space = 0; space < y; ++space) {
             out += " ";
         }
 
         // Add roughness value.
-        for(size_t x = 0; x < width; ++x) {
-            if(x == start.x && y == start.y) {
+        for(uint x = 0; x < width; ++x) {
+            if(static_cast<uint>(start.x) == x && static_cast<uint>(start.y) == y) {
                 out += "* ";
             }
-            else if(x == finish.x && y == finish.y) {
+            else if(static_cast<uint>(finish.x) == x && static_cast<uint>(finish.y) == y) {
                 out += "& ";
             }
             else {

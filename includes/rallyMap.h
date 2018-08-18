@@ -64,16 +64,16 @@ public:
 // Note: The start and finish are always treated as if they have a roughness of
 // one.
 class RallyMap {
-    size_t width;
-    size_t height;
+    uint width;
+    uint height;
 
     Point start;
     Point finish;
 
     std::vector<std::vector<uint> > roughness;
 public:
-    size_t getHeight() const;
-    size_t getWidth() const;
+    uint getHeight() const;
+    uint getWidth() const;
 
     Point getStart() const;
     // If the given Point is the same as the finish or out of bounds this

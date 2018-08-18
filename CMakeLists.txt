@@ -1,7 +1,19 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(OffroadRally VERSION 0.1.0)
 
-option(BUILD_TEST "Include tests in the build." OFF)
+include(CMakeDependentOption)
+
+option(DEVELOPER "Use development build options.")
+cmake_dependent_option(BUILD_TEST "Include tests in the build." ON
+    "DEVELOPER" OFF)
+
+if(DEVELOPER)
+    if(MSVC)
+        add_compile_options(/W3 /WX)
+    else()
+        add_compile_options(-Wall)
+    endif()
+endif()
 
 if(BUILD_TEST)
     include(CTest)
