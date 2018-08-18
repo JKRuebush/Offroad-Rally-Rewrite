@@ -125,8 +125,8 @@ public:
     std::tuple<Point, uint, bool> analyzePath(const std::vector<Direction>& path) const;
     // Determines where the given path ends.
     Point calculatePathEnd(const std::vector<Direction>& path) const;
-    // Calculates the time it takes to move in the given directions.
-    uint calculatePathTime(const std::vector<Direction>& path) const;
+    // Calculates the cost it takes to move in the given directions.
+    uint calculatePathCost(const std::vector<Direction>& path) const;
 
     // Creates a list of all the points surrounding the given one, and the
     // direction to that point. 

@@ -1,6 +1,6 @@
+#include "rallyMap.h"
 #include <cmath>
 #include <stdexcept>
-#include "rallyMap.h"
 
 //-----------------------------------------------------------------------------
 // Direction
@@ -77,11 +77,11 @@ Direction rotateDirectionRight(Direction dir) {
 //-----------------------------------------------------------------------------
 
 // Defaults to (0,0)
-Point::Point(): x(0), y(0) {};
+Point::Point() : x(0), y(0){};
 
-Point::Point(int x, int y): x(x), y(y) {};
+Point::Point(int x, int y) : x(x), y(y){};
 
-Point::Point(const Point& other): x(other.x), y(other.y) {};
+Point::Point(const Point& other) : x(other.x), y(other.y){};
 
 void Point::set(int newX, int newY) {
     x = newX;
@@ -89,9 +89,8 @@ void Point::set(int newX, int newY) {
 }
 
 uint Point::distanceTo(const Point& other) const {
-    return abs(this->x - other.y) +
-        abs(this->x + this->y - other.x - other.y) +
-        abs(this->y - other.y);
+    return abs(this->x - other.y) + abs(this->x + this->y - other.x - other.y) +
+           abs(this->y - other.y);
 }
 
 bool Point::operator==(const Point& other) const {
@@ -113,18 +112,23 @@ Point& Point::operator=(const Point& other) {
 // RallyMap
 //-----------------------------------------------------------------------------
 
-uint RallyMap::getHeight() const { return height; }
+uint RallyMap::getHeight() const {
+    return height;
+}
 
-uint RallyMap::getWidth() const { return width; }
+uint RallyMap::getWidth() const {
+    return width;
+}
 
-Point RallyMap::getStart() const { return start; }
+Point RallyMap::getStart() const {
+    return start;
+}
 
 // If the given Point is the same as the finish or out of bounds this
 // throws an exception.
 void RallyMap::setStart(Point newStart) {
-    if(newStart.x < 0 || static_cast<uint>(newStart.x) >= width || 
-        newStart.y < 0 || static_cast<uint>(newStart.y) >= height) {
-
+    if(newStart.x < 0 || static_cast<uint>(newStart.x) >= width || newStart.y < 0 ||
+       static_cast<uint>(newStart.y) >= height) {
         throw std::range_error("invalid position");
     }
 
@@ -135,14 +139,15 @@ void RallyMap::setStart(Point newStart) {
     start = newStart;
 }
 
-Point RallyMap::getFinish() const { return finish; }
+Point RallyMap::getFinish() const {
+    return finish;
+}
 
 // If the given Point is the same as the start or out of bounds this
 // throws an exception.
 void RallyMap::setFinish(Point newFinish) {
-    if(newFinish.x < 0 || static_cast<uint>(newFinish.x) >= width || 
-        newFinish.y < 0 || static_cast<uint>(newFinish.y) >= height) {
-
+    if(newFinish.x < 0 || static_cast<uint>(newFinish.x) >= width || newFinish.y < 0 ||
+       static_cast<uint>(newFinish.y) >= height) {
         throw std::range_error("invalid position");
     }
 
@@ -168,9 +173,8 @@ void RallyMap::randomizeRace() {
 
 // Throws an exception if the position is out of bounds.
 uint RallyMap::getRoughness(Point pos) const {
-    if(pos.x < 0 || static_cast<uint>(pos.x) > width || 
-        pos.y < 0 || static_cast<uint>(pos.y) > height) {
-
+    if(pos.x < 0 || static_cast<uint>(pos.x) > width || pos.y < 0 ||
+       static_cast<uint>(pos.y) > height) {
         throw std::range_error("invalid position");
     }
 
@@ -181,19 +185,16 @@ uint RallyMap::getRoughness(Point pos) const {
 // Values above the max roughness are set to the max.
 // Throws an exception if the position is out of bounds.
 void RallyMap::setRoughness(Point pos, uint newRoughness) {
-    if(pos.x < 0 || static_cast<uint>(pos.x) > width || 
-        pos.y < 0 || static_cast<uint>(pos.y) > height) {
-
+    if(pos.x < 0 || static_cast<uint>(pos.x) > width || pos.y < 0 ||
+       static_cast<uint>(pos.y) > height) {
         throw std::range_error("invalid position");
     }
 
     if(newRoughness > MAX_ROUGHNESS) {
         roughness[pos.y][pos.x] = MAX_ROUGHNESS;
-    }
-    else if(newRoughness == 0) {
+    } else if(newRoughness == 0) {
         roughness[pos.y][pos.x] = rand() % MAX_ROUGHNESS + 1;
-    }
-    else {
+    } else {
         roughness[pos.y][pos.x] = newRoughness;
     }
 }
@@ -207,7 +208,9 @@ void RallyMap::randomizeRoughness() {
     }
 }
 
-std::vector<std::vector<uint>> RallyMap::getAllRoughness() const { return roughness; }
+std::vector<std::vector<uint>> RallyMap::getAllRoughness() const {
+    return roughness;
+}
 
 // The map is resized and the roughness is set based on the given template.
 // The roughness is set the same way as `setRoughness` so 0 values are
@@ -215,7 +218,9 @@ std::vector<std::vector<uint>> RallyMap::getAllRoughness() const { return roughn
 //
 // Throws an exception if either of the template's dimensions are smaller
 // than two or if the template is jagged.
-void RallyMap::setMap(Point start, Point finish, const std::vector<std::vector<uint> >& mapTemplate) {
+void RallyMap::setMap(Point start,
+                      Point finish,
+                      const std::vector<std::vector<uint>>& mapTemplate) {
     height = mapTemplate.size();
     width = mapTemplate[0].size();
 
@@ -239,8 +244,7 @@ void RallyMap::setMap(Point start, Point finish, const std::vector<std::vector<u
         for(uint x = 0; x < width; ++x) {
             if(roughness[y][x] == 0) {
                 roughness[y][x] = rand() % MAX_ROUGHNESS + 1;
-            }
-            else if(roughness[y][x] > MAX_ROUGHNESS) {
+            } else if(roughness[y][x] > MAX_ROUGHNESS) {
                 roughness[y][x] = MAX_ROUGHNESS;
             }
         }
@@ -251,7 +255,7 @@ void RallyMap::setMap(Point start, Point finish, const std::vector<std::vector<u
 //
 // Throws an exception if either of the template's dimensions are smaller
 // than two.
-RallyMap::RallyMap(uint width, uint height): start(Point(-1,-1)), finish(Point(-1,-1)) {
+RallyMap::RallyMap(uint width, uint height) : start(Point(-1, -1)), finish(Point(-1, -1)) {
     if(width < 2 || height < 2) {
         throw std::invalid_argument("map dimensions too small");
     }
@@ -272,15 +276,20 @@ RallyMap::RallyMap(uint width, uint height): start(Point(-1,-1)), finish(Point(-
 //
 // Throws an exception if either of the template's dimensions are smaller
 // than two or if the template is jagged.
-RallyMap::RallyMap(Point startPos, Point finishPos, 
-    const std::vector<std::vector<uint> >& mapTemplate): start(Point(-1,-1)), finish(Point(-1,-1)) {
-
+RallyMap::RallyMap(Point startPos,
+                   Point finishPos,
+                   const std::vector<std::vector<uint>>& mapTemplate)
+    : start(Point(-1, -1)), finish(Point(-1, -1)) {
     setMap(startPos, finishPos, mapTemplate);
 }
 
 // Copy constructor
-RallyMap::RallyMap(const RallyMap& other): width(other.width), height(other.height), 
-    start(other.start), finish(other.finish), roughness(other.roughness) {}
+RallyMap::RallyMap(const RallyMap& other)
+    : width(other.width),
+      height(other.height),
+      start(other.start),
+      finish(other.finish),
+      roughness(other.roughness) {}
 
 // Calculates where the given path ends, how long to get there, and if it
 // ends on the finish.
@@ -308,7 +317,7 @@ Point RallyMap::calculatePathEnd(const std::vector<Direction>& path) const {
 }
 
 // Calculates the time it takes to move in the given directions.
-uint RallyMap::calculatePathTime(const std::vector<Direction>& path) const {
+uint RallyMap::calculatePathCost(const std::vector<Direction>& path) const {
     auto pos = start;
     uint time = 0;
 
@@ -322,8 +331,8 @@ uint RallyMap::calculatePathTime(const std::vector<Direction>& path) const {
 
 // Creates a list of all the points surrounding the given one, and the
 // direction to that point.
-std::vector<std::pair<Point, Direction> > RallyMap::getNeighbors(Point pos) const {
-    std::vector<std::pair<Point, Direction> > neighborList;
+std::vector<std::pair<Point, Direction>> RallyMap::getNeighbors(Point pos) const {
+    std::vector<std::pair<Point, Direction>> neighborList;
 
     for(auto dir : DIRECTIONS) {
         auto neighbor = getDestination(pos, dir);
@@ -423,11 +432,9 @@ std::string RallyMap::toString() const {
         for(uint x = 0; x < width; ++x) {
             if(static_cast<uint>(start.x) == x && static_cast<uint>(start.y) == y) {
                 out += "* ";
-            }
-            else if(static_cast<uint>(finish.x) == x && static_cast<uint>(finish.y) == y) {
+            } else if(static_cast<uint>(finish.x) == x && static_cast<uint>(finish.y) == y) {
                 out += "& ";
-            }
-            else {
+            } else {
                 out += std::to_string(roughness[y][x]) + " ";
             }
         }
@@ -454,6 +461,6 @@ RallyMap& RallyMap::operator=(const RallyMap& other) {
     return *this;
 }
 
-std::ostream& operator<<(std::ostream &os, const RallyMap& map) {
+std::ostream& operator<<(std::ostream& os, const RallyMap& map) {
     return os << map.toString();
 }
