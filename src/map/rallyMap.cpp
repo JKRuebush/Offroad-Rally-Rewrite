@@ -243,7 +243,7 @@ void RallyMap::setMap(Point start, Point finish, const std::vector<std::vector<u
 //
 // Throws an exception if either of the template's dimensions are smaller
 // than two.
-RallyMap::RallyMap(uint width, uint height): start(Point(0,0)), finish(Point(1,1)) {
+RallyMap::RallyMap(uint width, uint height): start(Point(-1,-1)), finish(Point(-1,-1)) {
     if(width < 2 || height < 2) {
         throw std::invalid_argument("map dimensions too small");
     }
@@ -265,7 +265,7 @@ RallyMap::RallyMap(uint width, uint height): start(Point(0,0)), finish(Point(1,1
 // Throws an exception if either of the template's dimensions are smaller
 // than two or if the template is jagged.
 RallyMap::RallyMap(Point startPos, Point finishPos, 
-    const std::vector<std::vector<uint> >& mapTemplate){
+    const std::vector<std::vector<uint> >& mapTemplate): start(Point(-1,-1)), finish(Point(-1,-1)) {
 
     setMap(startPos, finishPos, mapTemplate);
 }
@@ -355,26 +355,26 @@ Point RallyMap::getDestination(Point pos, Direction dir) const {
     switch(dir) {
         // North       x+1, y-1
         case Direction::North:
-            if(pos.x < width && pos.y > 0) {
+            if(pos.x + 1 < width && pos.y > 0) {
                 pos.x += 1;
                 pos.y -= 1;
             }
             break;
         // NorthEast   x+1
         case Direction::NorthEast:
-            if(pos.x < width) {
+            if(pos.x + 1 < width) {
                 pos.x += 1;
             }
             break;
         // SouthEast   y+1
         case Direction::SouthEast:
-            if(pos.y < height) {
+            if(pos.y + 1 < height) {
                 pos.y += 1;
             }
             break;
         // South       x-1, y+1
         case Direction::South:
-            if(pos.x > 0 && pos.y < height) {
+            if(pos.x > 0 && pos.y + 1 < height) {
                 pos.x -= 1;
                 pos.y += 1;
             }

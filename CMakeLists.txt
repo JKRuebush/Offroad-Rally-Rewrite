@@ -1,8 +1,23 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.10.0)
 project(OffroadRally VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
+option(BUILD_TEST "Include tests in the build." OFF)
+
+if(BUILD_TEST)
+    include(CTest)
+    enable_testing()
+    find_package(GTest REQUIRED)
+    include(GoogleTest)
+
+    add_executable(RallyTest 
+        test/testMain.cpp 
+        test/mapTests.cpp 
+        src/map/rallyMap.cpp
+    )
+    target_include_directories(RallyTest PUBLIC includes)
+    target_link_libraries(RallyTest GTest::GTest)
+    gtest_discover_tests(RallyTest)
+endif()
 
 add_executable(OffroadRally src/main.cpp src/map/rallyMap.cpp)
 target_include_directories(OffroadRally PUBLIC includes)
