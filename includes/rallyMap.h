@@ -9,18 +9,16 @@
 const uint MAX_ROUGHNESS = 9;
 
 enum class Direction {
-    North,     // x+1, y-1
-    NorthEast, // x+1
-    SouthEast, // y+1
-    South,     // x-1, y+1
-    SouthWest, // x-1
-    NorthWest  // y-1
+    North,      // x+1, y-1
+    NorthEast,  // x+1
+    SouthEast,  // y+1
+    South,      // x-1, y+1
+    SouthWest,  // x-1
+    NorthWest   // y-1
 };
 
-const Direction DIRECTIONS[] = {
-    Direction::North, Direction::NorthEast, Direction::SouthEast, Direction::South, 
-    Direction::SouthWest, Direction::NorthWest
-};
+const Direction DIRECTIONS[] = {Direction::North, Direction::NorthEast, Direction::SouthEast,
+                                Direction::South, Direction::SouthWest, Direction::NorthWest};
 
 // Reverses the given `Direction`.
 // Ex. North -> South.
@@ -33,7 +31,7 @@ Direction rotateDirectionLeft(Direction dir);
 Direction rotateDirectionRight(Direction dir);
 
 class Point {
-public:
+   public:
     int x;
     int y;
 
@@ -52,13 +50,16 @@ public:
     bool operator==(const Point& other) const;
     bool operator!=(const Point& other) const;
 
+    // For sorting purposes. Compares x, and if they are equal compares y.
+    bool operator<(const Point& other) const;
+
     Point& operator=(const Point& other);
 };
 
 // The `RallyMap` represents the hex map that the rally takes place on. For
 // simple storage and displaying the underlying structure is a rhombus. Each hex
 // has a roughness score. The time it takes to move from one hex to another is
-// the sum of the roughness of the two hexes. If an agent tries to move off of 
+// the sum of the roughness of the two hexes. If an agent tries to move off of
 // the hex grid they are directed back onto the hex they started on.
 //
 // Note: The start and finish are always treated as if they have a roughness of
@@ -70,8 +71,9 @@ class RallyMap {
     Point start;
     Point finish;
 
-    std::vector<std::vector<uint> > roughness;
-public:
+    std::vector<std::vector<uint>> roughness;
+
+   public:
     uint getHeight() const;
     uint getWidth() const;
 
@@ -90,10 +92,10 @@ public:
 
     // Throws an exception if the position is out of bounds.
     uint getRoughness(Point pos) const;
-    // If the value given is 0, then the roughness is set to a random value. 
+    // If the value given is 0, then the roughness is set to a random value.
     // Values above the max roughness are set to the max.
     // Throws an exception if the position is out of bounds.
-    void setRoughness(Point pos, uint newRoughness); 
+    void setRoughness(Point pos, uint newRoughness);
     // Randomizes the roughness of the entire map.
     void randomizeRoughness();
 
@@ -102,21 +104,21 @@ public:
     // The roughness is set the same way as `setRoughness` so 0 values are
     // replaced with random values, and values above the max are set to the max.
     //
-    // Throws an exception if either of the template's dimensions are smaller 
+    // Throws an exception if either of the template's dimensions are smaller
     // than two or if the template is jagged.
-    void setMap(Point start, Point finish, const std::vector<std::vector<uint> >& mapTemplate);
+    void setMap(Point start, Point finish, const std::vector<std::vector<uint>>& mapTemplate);
 
     // Creates a random map with the given dimensions.
     //
-    // Throws an exception if either of the template's dimensions are smaller 
+    // Throws an exception if either of the template's dimensions are smaller
     // than two.
     RallyMap(uint width, uint height);
     // Creates a map from the given template. This works the same way as calling
     // `setMap`.
     //
-    // Throws an exception if either of the template's dimensions are smaller 
+    // Throws an exception if either of the template's dimensions are smaller
     // than two or if the template is jagged.
-    RallyMap(Point startPos, Point finishPos, const std::vector<std::vector<uint> >& mapTemplate);
+    RallyMap(Point startPos, Point finishPos, const std::vector<std::vector<uint>>& mapTemplate);
     // Copy constructor
     RallyMap(const RallyMap& other);
 
@@ -129,8 +131,8 @@ public:
     uint calculatePathCost(const std::vector<Direction>& path) const;
 
     // Creates a list of all the points surrounding the given one, and the
-    // direction to that point. 
-    std::vector<std::pair<Point, Direction> > getNeighbors(Point pos) const;
+    // direction to that point.
+    std::vector<std::pair<Point, Direction>> getNeighbors(Point pos) const;
 
     // Determines the cost of moving in a given direction. If the move goes out
     // of bounds the agent returns to their starting position. This is not the
@@ -141,12 +143,12 @@ public:
     // direction. In the case of moving out of bounds, the original Point
     // is returned.
     Point getDestination(Point pos, Direction dir) const;
- 
+
     std::string toString() const;
 
     RallyMap& operator=(const RallyMap& other);
 
-    friend std::ostream& operator<<(std::ostream &os, const RallyMap& map);
+    friend std::ostream& operator<<(std::ostream& os, const RallyMap& map);
 };
 
 #endif /* RALLYMAP_H */

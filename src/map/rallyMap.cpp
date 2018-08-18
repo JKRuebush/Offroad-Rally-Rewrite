@@ -101,6 +101,11 @@ bool Point::operator!=(const Point& other) const {
     return (this->x != other.x) || (this->y != other.y);
 }
 
+// For sorting purposes. Compares x, and if they are equal compares y.
+bool Point::operator<(const Point& other) const {
+    return (this->x == other.x) ? (this->y < other.y) : (this->x < other.x);
+}
+
 Point& Point::operator=(const Point& other) {
     this->x = other.x;
     this->y = other.y;
@@ -338,7 +343,7 @@ std::vector<std::pair<Point, Direction>> RallyMap::getNeighbors(Point pos) const
         auto neighbor = getDestination(pos, dir);
 
         if(neighbor != pos) {
-            neighborList.push_back(std::make_pair(pos, dir));
+            neighborList.push_back(std::make_pair(neighbor, dir));
         }
     }
 
@@ -431,11 +436,15 @@ std::string RallyMap::toString() const {
         // Add roughness value.
         for(uint x = 0; x < width; ++x) {
             if(static_cast<uint>(start.x) == x && static_cast<uint>(start.y) == y) {
-                out += "* ";
+                out += "*";
             } else if(static_cast<uint>(finish.x) == x && static_cast<uint>(finish.y) == y) {
-                out += "& ";
+                out += "&";
             } else {
-                out += std::to_string(roughness[y][x]) + " ";
+                out += std::to_string(roughness[y][x]);
+            }
+
+            if(x + 1 != width) {
+                out += " ";
             }
         }
 
