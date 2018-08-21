@@ -9,7 +9,7 @@ cmake_dependent_option(BUILD_TEST "Include tests in the build." ON
 
 if(DEVELOPER)
     if(MSVC)
-        add_compile_options(/W3 /WX)
+        add_compile_options(/W3)
     else()
         add_compile_options(-Wall)
     endif()
@@ -31,6 +31,11 @@ if(BUILD_TEST)
     gtest_discover_tests(RallyTest)
 endif()
 
-add_executable(OffroadRally src/main.cpp src/map/rallyMap.cpp)
+add_executable(OffroadRally 
+    src/main.cpp 
+    src/map/rallyMap.cpp
+    src/map/mapInterface.cpp
+    src/agents/agentNop.cpp
+)
 target_include_directories(OffroadRally PUBLIC includes)
 target_compile_features(OffroadRally PUBLIC cxx_std_11)

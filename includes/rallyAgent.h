@@ -1,45 +1,77 @@
 #ifndef RALLYAGENT_H
 #define RALLYAGENT_H
 
+#include "mapInterface.h"
 #include "rallyMap.h"
 
-class AgentInterface {
-    RallyMap* map;
-    uint mapLooks;
-
+class AgentBase {
    public:
-    uint getHeight() const;
-    uint getWidth() const;
+    virtual const char* getName() const = 0;
 
-    Point getStart() const;
-    Point getFinish() const;
+    // This is the function called to run the Agent on a RallyMap
+    virtual std::vector<Direction> RunAgent(const MapInterface* api) = 0;
 
-    uint getMapLooks() const;
-
-    AgentInterface(RallyMap* map);
-    AgentInterface(const AgentInterface& other);
-
-    // Creates a list of all the points surrounding the given one, and the
-    // direction to that point.
-    std::vector<std::pair<Point, Direction>> getNeighbors(Point pos) const;
-
-    // Determines the cost of moving in a given direction. If the move goes out
-    // of bounds the agent returns to their starting position. This is not the
-    // same as a no-op, and costs twice the roughness of the starting position.
-    uint getMoveCost(Point pos, Direction dir);
-
-    // Determines what Point is arrived at from moving in a given
-    // direction. In the case of moving out of bounds, the original Point
-    // is returned.
-    Point getDestination(Point pos, Direction dir) const;
-}
-
-class RallyAgent {
-   public:
-    virtual std::string getName() const;
-    virtual std::vector<Direction> getPath(AgentInterface* api);
+    virtual ~AgentBase() {}
 };
 
-extern "C" RallyAgent getAgent();
+class AgentFactoryBase {
+   protected:
+    AgentFactoryBase() {}
+
+   public:
+    virtual AgentBase* CreateTest() = 0;
+
+    virtual ~AgentFactoryBase() {}
+};
+
+template <class AgentClass>
+class AgentFactory : public AgentFactoryBase {
+   public:
+    virtual AgentBase* CreateTest() { return new AgentClass; }
+};
+
+class AgentManager {
+    std::vector<AgentFactoryBase*> agentFactories;
+
+   public:
+    static AgentManager* GetInstance() {
+        static AgentManager manager;
+        return &manager;
+    }
+
+    AgentFactoryBase* registerAgent(AgentFactoryBase* fact) {
+        agentFactories.push_back(fact);
+        return fact;
+    }
+
+    std::vector<AgentBase*> makeAgents() const {
+        std::vector<AgentBase*> agents;
+
+        for(auto factory : agentFactories) {
+            agents.push_back(factory->CreateTest());
+        }
+
+        return agents;
+    }
+};
+
+#define MAKE_AGENT_NAME(name) Agent_##name
+#define REGISTER_AGENT(agentName)                                         \
+    class MAKE_AGENT_NAME(agentName) : public AgentBase {                 \
+        static AgentFactoryBase* const factory;                           \
+        const char* name = #agentName;                                    \
+                                                                          \
+       public:                                                            \
+        const char* getName() const { return name; }                      \
+                                                                          \
+        MAKE_AGENT_NAME(agentName)() {}                                   \
+                                                                          \
+        virtual std::vector<Direction> RunAgent(const MapInterface* api); \
+    };                                                                    \
+                                                                          \
+    AgentFactoryBase* const MAKE_AGENT_NAME(agentName)::factory =         \
+        AgentManager::GetInstance()->registerAgent(                       \
+            new AgentFactory<MAKE_AGENT_NAME(agentName)>());              \
+    std::vector<Direction> MAKE_AGENT_NAME(agentName)::RunAgent
 
 #endif /* RALLYAGENT_H */

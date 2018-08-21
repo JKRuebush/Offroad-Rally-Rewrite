@@ -1,6 +1,8 @@
-#include "rallyMap.h"
 #include <cmath>
+#include <cstdlib>
 #include <stdexcept>
+
+#include "rallyMap.h"
 
 //-----------------------------------------------------------------------------
 // Direction

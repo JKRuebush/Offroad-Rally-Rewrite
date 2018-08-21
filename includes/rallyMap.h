@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 
+typedef unsigned int uint;
+
 // The bottom of this range is 1. As of right now only 1-9 is supported.
 const uint MAX_ROUGHNESS = 9;
 
