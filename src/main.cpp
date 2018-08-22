@@ -52,7 +52,6 @@ int main() {
     std::cout << agents.size() << std::endl;
 
     RallyMap test(9, 9);
-    MapInterface api(&test);
 
     std::cout << test << std::endl;
 
@@ -61,6 +60,7 @@ int main() {
     bool finishedRace;
 
     for(auto agent : agents) {
+        MapInterface api(&test);
         auto path = agent->RunAgent(&api);
         std::cout << "Name: " << agent->getName() << std::endl;
         std::cout << "Path: " << printPath(path) << std::endl;

@@ -39,6 +39,7 @@ add_executable(OffroadRally
     src/agents/agentDijkstra.cpp
     src/agents/agentNop.cpp
     src/agents/agentOneStep.cpp
+    src/agents/agentStar.cpp
     src/agents/agentRandomWalk.cpp
 )
 target_include_directories(OffroadRally PUBLIC includes)
