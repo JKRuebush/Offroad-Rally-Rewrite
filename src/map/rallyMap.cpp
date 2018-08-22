@@ -91,8 +91,17 @@ void Point::set(int newX, int newY) {
 }
 
 uint Point::distanceTo(const Point& other) const {
-    return abs(this->x - other.y) + abs(this->x + this->y - other.x - other.y) +
-           abs(this->y - other.y);
+    return (abs(this->x - other.x) + abs(this->x + this->y - other.x - other.y) +
+            abs(this->y - other.y)) /
+           2;
+}
+
+Point Point::operator+(const Point& other) const {
+    return Point(this->x + other.x, this->y + other.y);
+}
+
+Point Point::operator-(const Point& other) const {
+    return Point(this->x - other.x, this->y - other.y);
 }
 
 bool Point::operator==(const Point& other) const {
