@@ -54,10 +54,21 @@ int main() {
     RallyMap test(9, 9);
     MapInterface api(&test);
 
+    std::cout << test << std::endl;
+
+    Point endPoint;
+    uint pathCost;
+    bool finishedRace;
+
     for(auto agent : agents) {
-        std::cout << agent->getName() << std::endl;
-        std::cout << printPath(agent->RunAgent(&api)) << std::endl;
-        std::cout << api.getMapLooks() << std::endl;
+        auto path = agent->RunAgent(&api);
+        std::cout << "Name: " << agent->getName() << std::endl;
+        std::cout << "Path: " << printPath(path) << std::endl;
+        std::cout << "Map Looks: " << api.getMapLooks() << std::endl;
+        std::tie(endPoint, pathCost, finishedRace) = test.analyzePath(path);
+        std::cout << "Path Cost: " << pathCost << std::endl;
+        std::cout << "Finished Race: " << (finishedRace ? "Yes" : "No") << std::endl;
+        std::cout << std::endl;
         delete agent;
     }
 

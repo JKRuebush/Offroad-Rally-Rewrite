@@ -33,9 +33,13 @@ endif()
 
 add_executable(OffroadRally 
     src/main.cpp 
-    src/map/rallyMap.cpp
     src/map/mapInterface.cpp
+    src/map/rallyMap.cpp
+    src/agents/agentCrow.cpp
+    src/agents/agentDijkstra.cpp
     src/agents/agentNop.cpp
+    src/agents/agentOneStep.cpp
+    src/agents/agentRandomWalk.cpp
 )
 target_include_directories(OffroadRally PUBLIC includes)
 target_compile_features(OffroadRally PUBLIC cxx_std_11)

@@ -9,7 +9,7 @@ class AgentBase {
     virtual const char* getName() const = 0;
 
     // This is the function called to run the Agent on a RallyMap
-    virtual std::vector<Direction> RunAgent(const MapInterface* api) = 0;
+    virtual std::vector<Direction> RunAgent(MapInterface* const api) = 0;
 
     virtual ~AgentBase() {}
 };
@@ -66,7 +66,7 @@ class AgentManager {
                                                                           \
         MAKE_AGENT_NAME(agentName)() {}                                   \
                                                                           \
-        virtual std::vector<Direction> RunAgent(const MapInterface* api); \
+        virtual std::vector<Direction> RunAgent(MapInterface* const api); \
     };                                                                    \
                                                                           \
     AgentFactoryBase* const MAKE_AGENT_NAME(agentName)::factory =         \

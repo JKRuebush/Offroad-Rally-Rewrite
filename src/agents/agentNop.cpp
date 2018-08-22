@@ -1,5 +1,7 @@
 #include "rallyAgent.h"
 
-REGISTER_AGENT(Nop)(const MapInterface* api) {
+// This agent is a no-op, and mostly serves as a test to show everything else
+// is working.
+REGISTER_AGENT(Nop)(MapInterface* const api) {
     return std::vector<Direction>{};
 }
