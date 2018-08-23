@@ -11,11 +11,11 @@ namespace {
 // Races are done in groups. Each group of races takes places over maps of
 // increasing size. So with a min size of 3x3 and max of 5x5 nine races would
 // take place with map sizes of 3x3, 3x4, 3x5, 4x3, 4x4, 4x5, 5x3, 5x4, 5x5.
-const int NUM_RACE_GROUPS = 500;
+const int NUM_RACE_GROUPS = 100;
 const int MIN_MAP_WIDTH = 3;
 const int MIN_MAP_HEIGHT = 3;
-const int MAX_MAP_WIDTH = 9;
-const int MAX_MAP_HEIGHT = 9;
+const int MAX_MAP_WIDTH = 12;
+const int MAX_MAP_HEIGHT = 12;
 }  // namespace
 
 std::string printPath(std::vector<Direction> path) {
@@ -47,6 +47,9 @@ std::string printPath(std::vector<Direction> path) {
             case Direction::NorthWest:
                 out += "NW";
                 break;
+            case Direction::None:
+                out += "X";
+                break;
         }
 
         if(i + 1 < path.size()) {
@@ -67,6 +70,9 @@ int main() {
         for(uint y = MIN_MAP_HEIGHT; y <= MAX_MAP_HEIGHT; ++y) {
             for(uint x = MIN_MAP_WIDTH; x <= MAX_MAP_WIDTH; ++x) {
                 RallyMap rally(x, y);
+
+                std::cout << rally << std::endl;
+
                 for(size_t i = 0; i < agents.size(); ++i) {
                     AgentWrapper& wrapper = agents[i];
                     wrapper.addRace(&rally);
@@ -74,7 +80,6 @@ int main() {
 
                 std::sort(agents.begin(), agents.end(), AgentWrapper::orderLastRace);
 
-                std::cout << rally << std::endl;
                 std::cout << "            Name |  Path Cost |  Map Looks | Finished | Path"
                           << std::endl;
 
@@ -87,21 +92,11 @@ int main() {
                               << " | ";
                     std::cout << printPath(wrapper.path) << std::endl;
                 }
+
+                std::cout << std::endl;
             }
         }
     }
-
-    /*
-    RallyMap rally(
-        Point(3, 0), Point(0, 2),
-        std::vector<std::vector<uint>>{{7, 5, 6, 0}, {1, 7, 9, 1}, {0, 3, 5, 8}, {1, 1, 3, 1}});
-
-    for(size_t i = 0; i < agents.size(); ++i) {
-        AgentWrapper& wrapper = agents[i];
-        wrapper.addRace(&rally);
-    }
-    std::cout << rally << std::endl;
-    */
 
     std::sort(agents.begin(), agents.end(), AgentWrapper::orderAllRace);
 

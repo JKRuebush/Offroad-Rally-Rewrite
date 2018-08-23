@@ -38,12 +38,18 @@ add_executable(OffroadRally
     src/map/mapInterface.cpp
     src/map/rallyMap.cpp
 
+    src/agents/agentAStar.cpp
+    # src/agents/agentAStarD.cpp
+    src/agents/agentAStarDM.cpp
+    # src/agents/agentAStarM.cpp
     src/agents/agentCrow.cpp
     src/agents/agentDijkstra.cpp
-    src/agents/agentNop.cpp
-    src/agents/agentOneStep.cpp
-    src/agents/agentStar.cpp
-    src/agents/agentRandomWalk.cpp
+    # src/agents/agentDijkstraD.cpp
+    src/agents/agentDijkstraDM.cpp
+    # src/agents/agentDijkstraM.cpp
+    # src/agents/agentNop.cpp
+    # src/agents/agentOneStep.cpp
+    # src/agents/agentRandomWalk.cpp
 )
 target_include_directories(OffroadRally PUBLIC includes)
 target_compile_features(OffroadRally PUBLIC cxx_std_11)

@@ -16,7 +16,8 @@ enum class Direction {
     SouthEast,  // y+1
     South,      // x-1, y+1
     SouthWest,  // x-1
-    NorthWest   // y-1
+    NorthWest,  // y-1
+    None
 };
 
 const Direction DIRECTIONS[] = {Direction::North, Direction::NorthEast, Direction::SouthEast,

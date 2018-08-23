@@ -13,9 +13,11 @@ namespace {
 typedef std::tuple<uint, Point, Direction> infoTuple;
 }  // namespace
 
-REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
+// DijkstraD is directionally aware. It can eliminate roughly half the map looks
+// at each point based on the direction of the previous point in the path.
+REGISTER_AGENT(DijkstraD)(MapInterface* const api) {
     std::map<Point, infoTuple> pointInfo;
-    pointInfo.emplace(api->getStart(), infoTuple(0, Point(-1, -1), Direction::North));
+    pointInfo.emplace(api->getStart(), infoTuple(0, Point(-1, -1), Direction::None));
 
     std::priority_queue<std::pair<uint, Point>, std::vector<std::pair<uint, Point>>,
                         std::greater<std::pair<uint, Point>>>
@@ -44,11 +46,23 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
             break;
         }
 
+        // These directions can all be ignored. The previous point in the path
+        // already looked at the points in these directions. It will never be
+        // Shorter to backtrack.
+        Direction parentDir = reverseDirection(std::get<2>(pointInfo.at(frontPoint)));
+        Direction parentDirLeft = rotateDirectionLeft(parentDir);
+        Direction parentDirRight = rotateDirectionRight(parentDir);
+
         for(auto near : api->getNeighbors(frontPoint)) {
             Point nearPoint;
             Direction nearDir;
 
             std::tie(nearPoint, nearDir) = near;
+
+            if(nearDir == parentDir || nearDir == parentDirLeft || nearDir == parentDirRight) {
+                continue;
+            }
+
             uint pathCost = frontCost + api->getMoveCost(frontPoint, nearDir);
 
             if(pointInfo.find(nearPoint) != pointInfo.end()) {

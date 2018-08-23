@@ -24,6 +24,8 @@ Direction reverseDirection(Direction dir) {
             return Direction::NorthEast;
         case Direction::NorthWest:
             return Direction::SouthEast;
+        case Direction::None:
+            return Direction::None;
         // Just in case.
         default:
             return dir;
@@ -46,6 +48,8 @@ Direction rotateDirectionLeft(Direction dir) {
             return Direction::NorthEast;
         case Direction::NorthEast:
             return Direction::North;
+        case Direction::None:
+            return Direction::None;
         // Just in case.
         default:
             return dir;
@@ -68,6 +72,8 @@ Direction rotateDirectionRight(Direction dir) {
             return Direction::NorthWest;
         case Direction::NorthWest:
             return Direction::North;
+        case Direction::None:
+            return Direction::None;
         // Just in case.
         default:
             return dir;
@@ -422,6 +428,8 @@ Point RallyMap::getDestination(Point pos, Direction dir) const {
             if(pos.y > 0) {
                 pos.y -= 1;
             }
+            break;
+        case Direction::None:
             break;
     }
 

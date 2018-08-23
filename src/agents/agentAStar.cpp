@@ -8,21 +8,25 @@
 
 namespace {
 // In order this tuple holds: the length of the shortest path found to the
-// point, the previous point in the path, and the direction the previous point
-// moved in to get to the current point.
-typedef std::tuple<uint, Point, Direction> infoTuple;
+// point, a cost estimate for how long it left to the end, the previous point
+// in the path, and the direction the previous point moved in to get to the
+// current point.
+typedef std::tuple<uint, uint, Point, Direction> infoTuple;
 }  // namespace
 
-REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
+REGISTER_AGENT(AStar)(MapInterface* const api) {
+    Point start = api->getStart();
+    Point finish = api->getFinish();
     std::map<Point, infoTuple> pointInfo;
-    pointInfo.emplace(api->getStart(), infoTuple(0, Point(-1, -1), Direction::North));
+    pointInfo.emplace(start,
+                      infoTuple(0, start.distanceTo(finish) * 2, Point(-1, -1), Direction::North));
 
     std::priority_queue<std::pair<uint, Point>, std::vector<std::pair<uint, Point>>,
                         std::greater<std::pair<uint, Point>>>
         frontier;
-    frontier.emplace(0, api->getStart());
+    frontier.emplace(std::get<1>(pointInfo.at(start)), start);
 
-    // Dijkstra's algorithm is run.
+    // A* algorithm is run.
     while(frontier.size() > 0) {
         Point frontPoint;
         uint frontCost;
@@ -35,12 +39,14 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
         // it's safe to ignore anything that doesn't match the cost there.
         // This avoids the complexity of resorting or removing the redundant
         // points when the updated ones are inserted.
-        while(frontCost != std::get<0>(pointInfo.at(frontPoint))) {
+        auto frontInfo = pointInfo.at(frontPoint);
+        while(frontCost != std::get<0>(frontInfo) + std::get<1>(frontInfo)) {
             std::tie(frontCost, frontPoint) = frontier.top();
             frontier.pop();
+            frontInfo = pointInfo.at(frontPoint);
         }
 
-        if(frontPoint == api->getFinish()) {
+        if(frontPoint == finish) {
             break;
         }
 
@@ -49,16 +55,20 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
             Direction nearDir;
 
             std::tie(nearPoint, nearDir) = near;
-            uint pathCost = frontCost + api->getMoveCost(frontPoint, nearDir);
+            uint cost =
+                std::get<0>(pointInfo.at(frontPoint)) + api->getMoveCost(frontPoint, nearDir);
 
             if(pointInfo.find(nearPoint) != pointInfo.end()) {
-                if(pathCost < std::get<0>(pointInfo.at(nearPoint))) {
-                    pointInfo[nearPoint] = infoTuple(pathCost, frontPoint, nearDir);
-                    frontier.emplace(pathCost, nearPoint);
+                auto nearInfo = pointInfo.at(nearPoint);
+                if(cost < std::get<0>(nearInfo)) {
+                    pointInfo[nearPoint] =
+                        infoTuple(cost, std::get<1>(nearInfo), frontPoint, nearDir);
+                    frontier.emplace(cost + std::get<1>(nearInfo), nearPoint);
                 }
             } else {
-                pointInfo.emplace(nearPoint, infoTuple(pathCost, frontPoint, nearDir));
-                frontier.emplace(pathCost, nearPoint);
+                uint estimate = nearPoint.distanceTo(finish) * 2;
+                pointInfo.emplace(nearPoint, infoTuple(cost, estimate, frontPoint, nearDir));
+                frontier.emplace(cost + estimate, nearPoint);
             }
         }
     }
@@ -68,8 +78,8 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
     Point tracePoint = api->getFinish();
     Direction traceDir;
 
-    while(tracePoint != api->getStart()) {
-        std::tie(std::ignore, tracePoint, traceDir) = pointInfo.at(tracePoint);
+    while(tracePoint != start) {
+        std::tie(std::ignore, std::ignore, tracePoint, traceDir) = pointInfo.at(tracePoint);
         path.push_back(traceDir);
     }
 
