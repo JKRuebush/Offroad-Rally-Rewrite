@@ -518,70 +518,52 @@ TEST(RallyMap, AnalyzePath) {
     bool finished;
 
     // Cases that don't finish.
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(std::vector<Direction>{});
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{});
     EXPECT_EQ(cost, 0);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::North});
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::North});
     EXPECT_EQ(cost, 2);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::NorthEast});
-    EXPECT_EQ(endPoint, Point(1, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::NorthEast});
     EXPECT_EQ(cost, 9);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::SouthEast});
-    EXPECT_EQ(endPoint, Point(0, 1));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::SouthEast});
     EXPECT_EQ(cost, 2);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::South});
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::South});
     EXPECT_EQ(cost, 2);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::SouthWest});
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::SouthWest});
     EXPECT_EQ(cost, 2);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) =
-        pathTest.analyzePath(std::vector<Direction>{Direction::NorthWest});
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(std::vector<Direction>{Direction::NorthWest});
     EXPECT_EQ(cost, 2);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(diagonalPath);
-    EXPECT_EQ(endPoint, Point(4, 4));
+    std::tie(cost, finished) = pathTest.analyzePath(diagonalPath);
     EXPECT_EQ(cost, 58);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(spiralPath);
-    EXPECT_EQ(endPoint, Point(2, 2));
+    std::tie(cost, finished) = pathTest.analyzePath(spiralPath);
     EXPECT_EQ(cost, 153);
     EXPECT_FALSE(finished);
 
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(allDirectionsPath);
-    EXPECT_EQ(endPoint, Point(0, 0));
+    std::tie(cost, finished) = pathTest.analyzePath(allDirectionsPath);
     EXPECT_EQ(cost, 40);
     EXPECT_FALSE(finished);
 
     // Cases that finish.
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(followBottomToFinishPath);
-    EXPECT_EQ(endPoint, Point(22, 4));
+    std::tie(cost, finished) = pathTest.analyzePath(followBottomToFinishPath);
     EXPECT_EQ(cost, 220);
     EXPECT_TRUE(finished);
 
-    std::tie(endPoint, cost, finished) = pathTest.analyzePath(shorterPath);
-    EXPECT_EQ(endPoint, Point(22, 4));
+    std::tie(cost, finished) = pathTest.analyzePath(shorterPath);
     EXPECT_EQ(cost, 110);
     EXPECT_TRUE(finished);
 }

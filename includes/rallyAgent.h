@@ -1,6 +1,8 @@
 #ifndef RALLYAGENT_H
 #define RALLYAGENT_H
 
+#include <memory>
+
 #include "mapInterface.h"
 #include "rallyMap.h"
 
@@ -30,29 +32,40 @@ class AgentFactory : public AgentFactoryBase {
     virtual AgentBase* CreateTest() { return new AgentClass; }
 };
 
+class AgentWrapper {
+    std::unique_ptr<AgentBase> agent;
+
+   public:
+    std::vector<Direction> path;
+    uint mapLooks;
+    uint pathCost;
+    bool finishedRace;
+
+    uint totalMapLooks;
+    uint totalPathCost;
+    uint racesFinished;
+
+    const char* getName() const { return agent->getName(); }
+
+    AgentWrapper(std::unique_ptr<AgentBase> agent)
+        : agent(std::move(agent)), totalMapLooks(0), totalPathCost(0), racesFinished(0) {}
+
+    void addRace(const RallyMap* rally);
+
+    static bool orderLastRace(const AgentWrapper& a, const AgentWrapper& b);
+
+    static bool orderAllRace(const AgentWrapper& a, const AgentWrapper& b);
+};
+
 class AgentManager {
     std::vector<AgentFactoryBase*> agentFactories;
 
    public:
-    static AgentManager* GetInstance() {
-        static AgentManager manager;
-        return &manager;
-    }
+    static AgentManager* GetInstance();
 
-    AgentFactoryBase* registerAgent(AgentFactoryBase* fact) {
-        agentFactories.push_back(fact);
-        return fact;
-    }
+    AgentFactoryBase* registerAgent(AgentFactoryBase* fact);
 
-    std::vector<AgentBase*> makeAgents() const {
-        std::vector<AgentBase*> agents;
-
-        for(auto factory : agentFactories) {
-            agents.push_back(factory->CreateTest());
-        }
-
-        return agents;
-    }
+    void makeAgents(std::vector<AgentWrapper>& agents) const;
 };
 
 #define MAKE_AGENT_NAME(name) Agent_##name

@@ -4,7 +4,7 @@
 #include "rallyMap.h"
 
 class MapInterface {
-    RallyMap* map;
+    const RallyMap* map;
     uint mapLooks;
 
    public:
@@ -16,7 +16,7 @@ class MapInterface {
 
     uint getMapLooks() const;
 
-    MapInterface(RallyMap* map);
+    MapInterface(const RallyMap* map);
     MapInterface(const MapInterface& other);
 
     // Creates a list of all the points surrounding the given one, and the

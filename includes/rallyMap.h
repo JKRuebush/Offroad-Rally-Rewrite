@@ -124,9 +124,8 @@ class RallyMap {
     // Copy constructor
     RallyMap(const RallyMap& other);
 
-    // Calculates where the given path ends, how long to get there, and if it
-    // ends on the finish.
-    std::tuple<Point, uint, bool> analyzePath(const std::vector<Direction>& path) const;
+    // Calculates the cost of the path, and if it ends on the finish.
+    std::pair<uint, bool> analyzePath(const std::vector<Direction>& path) const;
     // Determines where the given path ends.
     Point calculatePathEnd(const std::vector<Direction>& path) const;
     // Calculates the cost it takes to move in the given directions.

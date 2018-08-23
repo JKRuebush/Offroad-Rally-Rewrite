@@ -1,9 +1,22 @@
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 #include <iostream>
 
 #include "rallyAgent.h"
 #include "rallyMap.h"
+
+namespace {
+// Races are done in groups. Each group of races takes places over maps of
+// increasing size. So with a min size of 3x3 and max of 5x5 nine races would
+// take place with map sizes of 3x3, 3x4, 3x5, 4x3, 4x4, 4x5, 5x3, 5x4, 5x5.
+const int NUM_RACE_GROUPS = 500;
+const int MIN_MAP_WIDTH = 3;
+const int MIN_MAP_HEIGHT = 3;
+const int MAX_MAP_WIDTH = 9;
+const int MAX_MAP_HEIGHT = 9;
+}  // namespace
 
 std::string printPath(std::vector<Direction> path) {
     std::string out = "";
@@ -47,29 +60,64 @@ std::string printPath(std::vector<Direction> path) {
 int main() {
     srand(time(NULL));
 
-    auto agents = AgentManager::GetInstance()->makeAgents();
+    std::vector<AgentWrapper> agents;
+    AgentManager::GetInstance()->makeAgents(agents);
 
-    std::cout << agents.size() << std::endl;
+    for(uint group = 0; group < NUM_RACE_GROUPS; ++group) {
+        for(uint y = MIN_MAP_HEIGHT; y <= MAX_MAP_HEIGHT; ++y) {
+            for(uint x = MIN_MAP_WIDTH; x <= MAX_MAP_WIDTH; ++x) {
+                RallyMap rally(x, y);
+                for(size_t i = 0; i < agents.size(); ++i) {
+                    AgentWrapper& wrapper = agents[i];
+                    wrapper.addRace(&rally);
+                }
 
-    RallyMap test(9, 9);
+                std::sort(agents.begin(), agents.end(), AgentWrapper::orderLastRace);
 
-    std::cout << test << std::endl;
+                std::cout << rally << std::endl;
+                std::cout << "            Name |  Path Cost |  Map Looks | Finished | Path"
+                          << std::endl;
 
-    Point endPoint;
-    uint pathCost;
-    bool finishedRace;
+                for(size_t i = 0; i < agents.size(); ++i) {
+                    AgentWrapper& wrapper = agents[i];
+                    std::cout << std::right << std::setw(16) << wrapper.getName() << " | ";
+                    std::cout << std::right << std::setw(10) << wrapper.pathCost << " | ";
+                    std::cout << std::right << std::setw(10) << wrapper.mapLooks << " | ";
+                    std::cout << std::right << std::setw(8) << (wrapper.finishedRace ? "Yes" : "No")
+                              << " | ";
+                    std::cout << printPath(wrapper.path) << std::endl;
+                }
+            }
+        }
+    }
 
-    for(auto agent : agents) {
-        MapInterface api(&test);
-        auto path = agent->RunAgent(&api);
-        std::cout << "Name: " << agent->getName() << std::endl;
-        std::cout << "Path: " << printPath(path) << std::endl;
-        std::cout << "Map Looks: " << api.getMapLooks() << std::endl;
-        std::tie(endPoint, pathCost, finishedRace) = test.analyzePath(path);
-        std::cout << "Path Cost: " << pathCost << std::endl;
-        std::cout << "Finished Race: " << (finishedRace ? "Yes" : "No") << std::endl;
+    /*
+    RallyMap rally(
+        Point(3, 0), Point(0, 2),
+        std::vector<std::vector<uint>>{{7, 5, 6, 0}, {1, 7, 9, 1}, {0, 3, 5, 8}, {1, 1, 3, 1}});
+
+    for(size_t i = 0; i < agents.size(); ++i) {
+        AgentWrapper& wrapper = agents[i];
+        wrapper.addRace(&rally);
+    }
+    std::cout << rally << std::endl;
+    */
+
+    std::sort(agents.begin(), agents.end(), AgentWrapper::orderAllRace);
+
+    std::cout << std::endl;
+    std::cout << std::string(80, '-') << std::endl;
+    std::cout << std::string(32, '-') << " Final Rankings " << std::string(32, '-') << std::endl;
+    std::cout << std::string(80, '-') << std::endl;
+    std::cout << "            Name |  Path Cost |  Map Looks | Finished" << std::endl;
+
+    for(size_t i = 0; i < agents.size(); ++i) {
+        AgentWrapper& wrapper = agents[i];
+        std::cout << std::right << std::setw(16) << wrapper.getName() << " | ";
+        std::cout << std::right << std::setw(10) << wrapper.totalPathCost << " | ";
+        std::cout << std::right << std::setw(10) << wrapper.totalMapLooks << " | ";
+        std::cout << std::right << std::setw(8) << wrapper.racesFinished;
         std::cout << std::endl;
-        delete agent;
     }
 
     return EXIT_SUCCESS;

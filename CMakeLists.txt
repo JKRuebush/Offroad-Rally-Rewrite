@@ -33,8 +33,11 @@ endif()
 
 add_executable(OffroadRally 
     src/main.cpp 
+    src/agentManager.cpp
+    src/agentWrapper.cpp
     src/map/mapInterface.cpp
     src/map/rallyMap.cpp
+
     src/agents/agentCrow.cpp
     src/agents/agentDijkstra.cpp
     src/agents/agentNop.cpp

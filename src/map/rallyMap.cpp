@@ -307,9 +307,8 @@ RallyMap::RallyMap(const RallyMap& other)
       finish(other.finish),
       roughness(other.roughness) {}
 
-// Calculates where the given path ends, how long to get there, and if it
-// ends on the finish.
-std::tuple<Point, uint, bool> RallyMap::analyzePath(const std::vector<Direction>& path) const {
+// Calculates the cost of the path, and if it ends on the finish.
+std::pair<uint, bool> RallyMap::analyzePath(const std::vector<Direction>& path) const {
     auto pos = start;
     uint time = 0;
 
@@ -318,7 +317,7 @@ std::tuple<Point, uint, bool> RallyMap::analyzePath(const std::vector<Direction>
         pos = getDestination(pos, dir);
     }
 
-    return std::make_tuple(pos, time, pos == finish);
+    return std::pair<uint, bool>(time, pos == finish);
 }
 
 // Determines where the given path ends.
@@ -354,7 +353,7 @@ std::vector<std::pair<Point, Direction>> RallyMap::getNeighbors(Point pos) const
         auto neighbor = getDestination(pos, dir);
 
         if(neighbor != pos) {
-            neighborList.push_back(std::make_pair(neighbor, dir));
+            neighborList.push_back(std::pair<Point, Direction>(neighbor, dir));
         }
     }
 

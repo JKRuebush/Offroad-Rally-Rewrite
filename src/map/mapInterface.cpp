@@ -20,7 +20,7 @@ uint MapInterface::getMapLooks() const {
     return mapLooks;
 }
 
-MapInterface::MapInterface(RallyMap* map) : map(map), mapLooks(0) {}
+MapInterface::MapInterface(const RallyMap* map) : map(map), mapLooks(0) {}
 
 MapInterface::MapInterface(const MapInterface& other) : map(other.map), mapLooks(0) {}
 
