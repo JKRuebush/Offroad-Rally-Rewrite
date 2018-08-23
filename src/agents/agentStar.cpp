@@ -27,8 +27,7 @@ REGISTER_AGENT(Star)(MapInterface* const api) {
     frontier.emplace(std::get<1>(pointInfo.at(start)), start);
 
     // A* algorithm is run.
-    bool foundFinish = false;
-    while(frontier.size() > 0 && !foundFinish) {
+    while(frontier.size() > 0) {
         Point frontPoint;
         uint frontCost;
 
@@ -47,6 +46,10 @@ REGISTER_AGENT(Star)(MapInterface* const api) {
             frontInfo = pointInfo.at(frontPoint);
         }
 
+        if(frontPoint == finish) {
+            break;
+        }
+
         for(auto near : api->getNeighbors(frontPoint)) {
             Point nearPoint;
             Direction nearDir;
@@ -59,18 +62,13 @@ REGISTER_AGENT(Star)(MapInterface* const api) {
                 auto nearInfo = pointInfo.at(nearPoint);
                 if(cost < std::get<0>(nearInfo)) {
                     pointInfo[nearPoint] =
-                        infoTuple(cost, std::get<1>(nearInfo) * 2, frontPoint, nearDir);
+                        infoTuple(cost, std::get<1>(nearInfo), frontPoint, nearDir);
                     frontier.emplace(cost + std::get<1>(nearInfo), nearPoint);
                 }
             } else {
                 uint estimate = nearPoint.distanceTo(finish) * 2;
                 pointInfo.emplace(nearPoint, infoTuple(cost, estimate, frontPoint, nearDir));
                 frontier.emplace(cost + estimate, nearPoint);
-            }
-
-            if(nearPoint == api->getFinish()) {
-                foundFinish = true;
-                break;
             }
         }
     }

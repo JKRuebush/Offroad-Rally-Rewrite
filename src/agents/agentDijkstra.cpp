@@ -23,8 +23,7 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
     frontier.emplace(0, api->getStart());
 
     // Dijkstra's algorithm is run.
-    bool foundFinish = false;
-    while(frontier.size() > 0 && !foundFinish) {
+    while(frontier.size() > 0) {
         Point frontPoint;
         uint frontCost;
 
@@ -39,6 +38,10 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
         while(frontCost != std::get<0>(pointInfo.at(frontPoint))) {
             std::tie(frontCost, frontPoint) = frontier.top();
             frontier.pop();
+        }
+
+        if(frontPoint == api->getFinish()) {
+            break;
         }
 
         for(auto near : api->getNeighbors(frontPoint)) {
@@ -57,11 +60,6 @@ REGISTER_AGENT(Dijkstra)(MapInterface* const api) {
             } else {
                 pointInfo.emplace(nearPoint, infoTuple(cost, frontPoint, nearDir));
                 frontier.emplace(cost, nearPoint);
-            }
-
-            if(nearPoint == api->getFinish()) {
-                foundFinish = true;
-                break;
             }
         }
     }
