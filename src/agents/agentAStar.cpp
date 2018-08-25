@@ -35,10 +35,8 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
 
     // A* algorithm is run.
     while(frontier.size() > 0) {
-        Point frontPoint;
-        uint frontCost;
-
-        std::tie(frontCost, frontPoint) = frontier.top();
+        uint frontCost = frontier.top().first;
+        Point frontPoint = frontier.top().second;
         frontier.pop();
 
         // A point might be in the frontier multiple times because the cost has

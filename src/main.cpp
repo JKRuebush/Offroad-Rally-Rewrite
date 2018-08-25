@@ -8,10 +8,11 @@
 #include "rallyMap.h"
 
 namespace {
-// Races are done in groups. Each group of races takes places over maps of
-// increasing size. So with a min size of 3x3 and max of 5x5 nine races would
-// take place with map sizes of 3x3, 3x4, 3x5, 4x3, 4x4, 4x5, 5x3, 5x4, 5x5.
-const int NUM_RACE_GROUPS = 300;
+// So a larger number of cases are covered the size of the `RallyMap` changes
+// over time. It starts at the minimum size, increments up to the max size,
+// and then loops back to the smaller size. For example a min of 5x5 and a max
+// of 6x6 results in the series 5x5 -> 6x5 -> 5x6 -> 6x6 -> 5x5 -> ...
+const int DEFAULT_NUM_RACES = 1000;
 const int MIN_MAP_WIDTH = 3;
 const int MIN_MAP_HEIGHT = 3;
 const int MAX_MAP_WIDTH = 12;
@@ -60,15 +61,38 @@ std::string printPath(std::vector<Direction> path) {
     return out;
 }
 
-int main() {
+int main(int argc, char** argv) {
     srand(time(NULL));
+
+    uint numRaces = DEFAULT_NUM_RACES;
+
+    if(argc > 1) {
+        try {
+            int tmp = std::stoi(argv[1], nullptr, 10);
+
+            if(tmp < 0) {
+                std::cerr << "Invalid race count: " << argv[1] << std::endl;
+                return EXIT_FAILURE;
+            }
+
+            numRaces = tmp;
+
+        } catch(std::invalid_argument e) {
+            std::cerr << "Invalid race count: " << argv[1] << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
 
     std::vector<AgentWrapper> agents;
     AgentManager::GetInstance()->makeAgents(agents);
 
-    for(uint group = 0; group < NUM_RACE_GROUPS; ++group) {
+    uint race = 0;
+    while(true) {
         for(uint y = MIN_MAP_HEIGHT; y <= MAX_MAP_HEIGHT; ++y) {
             for(uint x = MIN_MAP_WIDTH; x <= MAX_MAP_WIDTH; ++x) {
+                if(++race > numRaces) {
+                    goto endRaces;
+                }
                 RallyMap rally(x, y);
 
                 std::cout << rally << std::endl;
@@ -97,6 +121,7 @@ int main() {
             }
         }
     }
+endRaces:
 
     std::sort(agents.begin(), agents.end(), AgentWrapper::orderAllRace);
 

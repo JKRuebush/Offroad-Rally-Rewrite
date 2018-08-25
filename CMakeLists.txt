@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(OffroadRally VERSION 0.1.0)
+project(OffroadRally VERSION 1.0.0)
 
 include(CMakeDependentOption)
 
