@@ -7,20 +7,62 @@
 
 namespace {
 struct PointInfo {
+    uint roughness;
     uint pathCost;
     uint estimate;
     Point parent;
     Direction parentDir;
     bool expanded;
 };
+
+std::vector<std::pair<Point, Direction>> getRelevantNeighbors(Point pos,
+                                                              Direction parentDir,
+                                                              MapInterface* const api) {
+    std::vector<Direction> directions;
+
+    switch(parentDir) {
+        case Direction::North:
+            directions = {Direction::NorthWest, Direction::North, Direction::NorthEast};
+            break;
+        case Direction::NorthEast:
+            directions = {Direction::North, Direction::NorthEast, Direction::SouthEast};
+            break;
+        case Direction::SouthEast:
+            directions = {Direction::NorthEast, Direction::SouthEast, Direction::South};
+            break;
+        case Direction::South:
+            directions = {Direction::SouthEast, Direction::South, Direction::SouthWest};
+            break;
+        case Direction::SouthWest:
+            directions = {Direction::South, Direction::SouthWest, Direction::NorthWest};
+            break;
+        case Direction::NorthWest:
+            directions = {Direction::SouthWest, Direction::NorthWest, Direction::North};
+            break;
+        case Direction::None:
+            directions.assign(DIRECTIONS, DIRECTIONS + sizeof(DIRECTIONS) / sizeof(Direction));
+    }
+
+    std::vector<std::pair<Point, Direction>> neighbors;
+    for(auto dir : directions) {
+        auto near = api->getDestination(pos, dir);
+
+        if(near != pos) {
+            neighbors.emplace_back(near, dir);
+        }
+    }
+
+    return neighbors;
+}
 }  // namespace
 
-REGISTER_AGENT(AStar)(MapInterface* const api) {
+REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
     Point start = api->getStart();
     Point finish = api->getFinish();
     std::map<Point, PointInfo> pointMap;
     pointMap.emplace(start,
                      PointInfo{
+                         1,                             // roughness
                          0,                             // pathCost
                          start.distanceTo(finish) * 2,  // estimate
                          Point(-1, -1),                 // parent
@@ -60,11 +102,9 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
             break;
         }
 
-        for(auto near : api->getNeighbors(frontPoint)) {
+        for(auto near : getRelevantNeighbors(frontPoint, frontInfo.parentDir, api)) {
             Point nearPoint = near.first;
             Direction nearDir = near.second;
-
-            uint cost = frontInfo.pathCost + api->getMoveCost(frontPoint, nearDir);
 
             if(pointMap.find(nearPoint) != pointMap.end()) {
                 PointInfo& nearInfo = pointMap.at(nearPoint);
@@ -75,26 +115,22 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
                     continue;
                 }
 
-                if(cost < nearInfo.pathCost) {
-                    nearInfo = PointInfo{
-                        cost,               // pathCost
-                        nearInfo.estimate,  // estimate
-                        frontPoint,         // parent
-                        nearDir,            // parentDir
-                        false               // expanded
-                    };
-                    frontier.emplace(cost + nearInfo.estimate, nearPoint);
+                uint pathCost = frontInfo.pathCost + frontInfo.roughness + nearInfo.roughness;
+
+                if(pathCost < nearInfo.pathCost) {
+                    nearInfo = PointInfo{nearInfo.roughness, pathCost, nearInfo.estimate,
+                                         frontPoint,         nearDir,  false};
+                    frontier.emplace(pathCost + nearInfo.estimate, nearPoint);
                 }
             } else {
                 uint estimate = nearPoint.distanceTo(finish) * 2;
-                pointMap.emplace(nearPoint, PointInfo{
-                                                cost,        // pathCost
-                                                estimate,    // estimate
-                                                frontPoint,  // parent
-                                                nearDir,     // parentDir
-                                                false        // expanded
-                                            });
-                frontier.emplace(cost + estimate, nearPoint);
+                uint moveCost = api->getMoveCost(frontPoint, nearDir);
+                uint nearRoughness = moveCost - frontInfo.roughness;
+                uint pathCost = moveCost + frontInfo.pathCost;
+
+                pointMap.emplace(nearPoint, PointInfo{nearRoughness, pathCost, estimate, frontPoint,
+                                                      nearDir, false});
+                frontier.emplace(pathCost + estimate, nearPoint);
             }
         }
     }

@@ -11,7 +11,7 @@ namespace {
 // Races are done in groups. Each group of races takes places over maps of
 // increasing size. So with a min size of 3x3 and max of 5x5 nine races would
 // take place with map sizes of 3x3, 3x4, 3x5, 4x3, 4x4, 4x5, 5x3, 5x4, 5x5.
-const int NUM_RACE_GROUPS = 100;
+const int NUM_RACE_GROUPS = 300;
 const int MIN_MAP_WIDTH = 3;
 const int MIN_MAP_HEIGHT = 3;
 const int MAX_MAP_WIDTH = 12;
@@ -101,9 +101,9 @@ int main() {
     std::sort(agents.begin(), agents.end(), AgentWrapper::orderAllRace);
 
     std::cout << std::endl;
-    std::cout << std::string(80, '-') << std::endl;
-    std::cout << std::string(32, '-') << " Final Rankings " << std::string(32, '-') << std::endl;
-    std::cout << std::string(80, '-') << std::endl;
+    std::cout << std::string(80, '-') << "\n";
+    std::cout << std::string(32, '-') << " Final Rankings " << std::string(32, '-') << "\n";
+    std::cout << std::string(80, '-') << "\n";
     std::cout << "            Name |  Path Cost |  Map Looks | Finished" << std::endl;
 
     for(size_t i = 0; i < agents.size(); ++i) {

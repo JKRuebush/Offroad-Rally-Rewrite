@@ -39,14 +39,12 @@ add_executable(OffroadRally
     src/map/rallyMap.cpp
 
     src/agents/agentAStar.cpp
-    # src/agents/agentAStarD.cpp
-    src/agents/agentAStarDM.cpp
-    # src/agents/agentAStarM.cpp
-    src/agents/agentCrow.cpp
+    src/agents/agentAStarOpt.cpp
+
     src/agents/agentDijkstra.cpp
-    # src/agents/agentDijkstraD.cpp
-    src/agents/agentDijkstraDM.cpp
-    # src/agents/agentDijkstraM.cpp
+    src/agents/agentDijkstraOpt.cpp
+
+    src/agents/agentCrow.cpp
     # src/agents/agentNop.cpp
     # src/agents/agentOneStep.cpp
     # src/agents/agentRandomWalk.cpp
