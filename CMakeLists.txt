@@ -22,32 +22,46 @@ if(BUILD_TEST)
     include(GoogleTest)
 
     add_executable(RallyTest 
-        test/testMain.cpp 
-        test/mapTests.cpp 
-        src/map/rallyMap.cpp
+        src/map/hex-direction.cpp
+        src/map/rally-map.cpp
+
+        test/main-test.cpp 
+
+        test/map/rally-map-test.cpp
     )
-    target_include_directories(RallyTest PUBLIC includes)
+    target_include_directories(RallyTest PUBLIC 
+        includes
+        includes/map
+        includes/agent
+    )
     target_link_libraries(RallyTest GTest::GTest)
     gtest_discover_tests(RallyTest)
 endif()
 
 add_executable(OffroadRally 
     src/main.cpp 
-    src/agentManager.cpp
-    src/agentWrapper.cpp
-    src/map/mapInterface.cpp
-    src/map/rallyMap.cpp
 
-    src/agents/agentAStar.cpp
-    src/agents/agentAStarOpt.cpp
+    src/agent/agent-manager.cpp
+    src/agent/agent-wrapper.cpp
 
-    src/agents/agentDijkstra.cpp
-    src/agents/agentDijkstraOpt.cpp
+    src/map/hex-direction.cpp
+    src/map/map-interface.cpp
+    src/map/rally-map.cpp
 
-    src/agents/agentCrow.cpp
-    # src/agents/agentNop.cpp
-    # src/agents/agentOneStep.cpp
-    # src/agents/agentRandomWalk.cpp
+    src/agent-impl/agentAStar.cpp
+    src/agent-impl/agentAStarOpt.cpp
+    
+    src/agent-impl/agentDijkstra.cpp
+    src/agent-impl/agentDijkstraOpt.cpp
+
+    src/agent-impl/agentCrow.cpp
+    # src/agent-impl/agentNop.cpp
+    # src/agent-impl/agentOneStep.cpp
+    # src/agent-impl/agentRandomWalk.cpp
 )
-target_include_directories(OffroadRally PUBLIC includes)
+target_include_directories(OffroadRally PUBLIC 
+    includes
+    includes/map
+    includes/agent
+)
 target_compile_features(OffroadRally PUBLIC cxx_std_11)
