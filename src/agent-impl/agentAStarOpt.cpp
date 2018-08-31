@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cmath>
-#include <map>
 #include <queue>
+#include <unordered_map>
 
 #include "agent/agent-impl.h"
 
@@ -19,8 +19,8 @@ struct PointInfo {
   bool expanded;
 };
 
-inline uint hueristic(const Point& a, const Point& b) {
-  return a.distanceTo(b) * 2;
+inline uint hueristic(const Point& a, const uint& aRoughness, const Point& b) {
+  return (a.distanceTo(b) - 1) * 2 + aRoughness + 1;
 }
 
 // All points other than the start have another point before them in the path.
@@ -82,15 +82,23 @@ std::vector<std::pair<Point, Direction::T>> getRelevantNeighbors(
 REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
   const Point start = api->getStart();
   const Point finish = api->getFinish();
-  std::map<Point, PointInfo> pointMap;
+
+  // If the start is right next to the finish don't do extra work.
+  for(const auto& hex : api->getNeighbors(start)) {
+    if(hex.first == api->getFinish()) {
+      return std::vector<Direction::T>{hex.second};
+    }
+  }
+
+  std::unordered_map<Point, PointInfo> pointMap;
   pointMap.emplace(start,
                    PointInfo{
-                       1,                         // roughness
-                       0,                         // pathCost
-                       hueristic(start, finish),  // estimate
-                       {-1, -1},                  // parent
-                       Direction::T::eNone,       // parentDir
-                       false                      // expanded
+                       1,                            // roughness
+                       0,                            // pathCost
+                       hueristic(start, 1, finish),  // estimate
+                       {-1, -1},                     // parent
+                       Direction::T::eNone,          // parentDir
+                       false                         // expanded
                    });
 
   std::priority_queue<std::pair<uint, Point>,
@@ -146,9 +154,9 @@ REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
           frontier.emplace(pathCost + nearInfo.estimate, nearPoint);
         }
       } else {
-        const uint estimate = hueristic(nearPoint, finish);
         const uint moveCost = api->getMoveCost(frontPoint, nearDir);
         const uint nearRoughness = moveCost - frontInfo->roughness;
+        const uint estimate = hueristic(nearPoint, nearRoughness, finish);
         const uint pathCost = moveCost + frontInfo->pathCost;
 
         pointMap.emplace(nearPoint, PointInfo{nearRoughness, pathCost, estimate,

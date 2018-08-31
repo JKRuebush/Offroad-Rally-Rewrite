@@ -21,13 +21,13 @@ constexpr std::array<T, 6> kAllMoveDirections{T::eNorth,     T::eNorthEast,
 
 // Reverses the given `Direction`.
 // Ex. North -> South.
-T reverseDirection(T dir);
+T reverse(T dir);
 // Rotates the given `Direction` left/counterclockwise.
 // Ex. North -> NorthWest.
-T rotateDirectionLeft(T dir);
+T rotateLeft(T dir);
 // Rotates the given `Direction` right/clockwise.
 // Ex. North -> NorthEast.
-T rotateDirectionRight(T dir);
+T rotateRight(T dir);
 
 }  // namespace Direction
 

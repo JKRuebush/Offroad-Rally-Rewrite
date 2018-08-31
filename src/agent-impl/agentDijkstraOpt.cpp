@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cmath>
-#include <map>
 #include <queue>
+#include <unordered_map>
 
 #include "agent/agent-impl.h"
 
@@ -77,7 +77,7 @@ std::vector<std::pair<Point, Direction::T>> getRelevantNeighbors(
 REGISTER_AGENT(DijkstraOpt)(MapInterface* const api) {
   const Point start = api->getStart();
   const Point finish = api->getFinish();
-  std::map<Point, PointInfo> pointMap;
+  std::unordered_map<Point, PointInfo> pointMap;
   pointMap.emplace(start,
                    PointInfo{
                        1,                    // roughness

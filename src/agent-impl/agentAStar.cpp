@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cmath>
-#include <map>
 #include <queue>
+#include <unordered_map>
 
 #include "agent/agent-impl.h"
 
@@ -28,7 +28,7 @@ inline uint hueristic(const Point& a, const Point& b) {
 REGISTER_AGENT(AStar)(MapInterface* const api) {
   const Point start = api->getStart();
   const Point finish = api->getFinish();
-  std::map<Point, PointInfo> pointMap;
+  std::unordered_map<Point, PointInfo> pointMap;
   pointMap.emplace(start,
                    PointInfo{
                        0,                         // pathCost

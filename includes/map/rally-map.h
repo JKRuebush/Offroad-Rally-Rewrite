@@ -159,4 +159,14 @@ class RallyMap {
 
 }  // namespace Rally
 
+// Allow hashing of point.
+namespace std {
+template <>
+struct hash<Rally::Point> {
+  size_t operator()(const Rally::Point& point) const {
+    return (point.x * 73856093) ^ (point.y * 83492791);
+  }
+};
+}  // namespace std
+
 #endif /* MAP_RALLY_MAP_H_ */

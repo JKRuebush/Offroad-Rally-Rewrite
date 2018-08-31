@@ -5,22 +5,22 @@ namespace Direction {
 
 // Reverses the given `Direction`.
 // Ex. North -> South.
-Direction::T reverseDirection(Direction::T dir) {
+T reverse(T dir) {
   switch(dir) {
-    case Direction::T::eNorth:
-      return Direction::T::eSouth;
-    case Direction::T::eNorthEast:
-      return Direction::T::eSouthWest;
-    case Direction::T::eSouthEast:
-      return Direction::T::eNorthWest;
-    case Direction::T::eSouth:
-      return Direction::T::eNorth;
-    case Direction::T::eSouthWest:
-      return Direction::T::eNorthEast;
-    case Direction::T::eNorthWest:
-      return Direction::T::eSouthEast;
-    case Direction::T::eNone:
-      return Direction::T::eNone;
+    case T::eNorth:
+      return T::eSouth;
+    case T::eNorthEast:
+      return T::eSouthWest;
+    case T::eSouthEast:
+      return T::eNorthWest;
+    case T::eSouth:
+      return T::eNorth;
+    case T::eSouthWest:
+      return T::eNorthEast;
+    case T::eNorthWest:
+      return T::eSouthEast;
+    case T::eNone:
+      return T::eNone;
     // Just in case.
     default:
       return dir;
@@ -29,22 +29,22 @@ Direction::T reverseDirection(Direction::T dir) {
 
 // Rotates the given `Direction` left/counterclockwise.
 // Ex. North -> NorthWest.
-Direction::T rotateDirectionLeft(Direction::T dir) {
+T rotateLeft(T dir) {
   switch(dir) {
-    case Direction::T::eNorth:
-      return Direction::T::eNorthWest;
-    case Direction::T::eNorthWest:
-      return Direction::T::eSouthWest;
-    case Direction::T::eSouthWest:
-      return Direction::T::eSouth;
-    case Direction::T::eSouth:
-      return Direction::T::eSouthEast;
-    case Direction::T::eSouthEast:
-      return Direction::T::eNorthEast;
-    case Direction::T::eNorthEast:
-      return Direction::T::eNorth;
-    case Direction::T::eNone:
-      return Direction::T::eNone;
+    case T::eNorth:
+      return T::eNorthWest;
+    case T::eNorthWest:
+      return T::eSouthWest;
+    case T::eSouthWest:
+      return T::eSouth;
+    case T::eSouth:
+      return T::eSouthEast;
+    case T::eSouthEast:
+      return T::eNorthEast;
+    case T::eNorthEast:
+      return T::eNorth;
+    case T::eNone:
+      return T::eNone;
     // Just in case.
     default:
       return dir;
@@ -53,22 +53,22 @@ Direction::T rotateDirectionLeft(Direction::T dir) {
 
 // Rotates the given `Direction` right/clockwise.
 // Ex. North -> NorthEast.
-Direction::T rotateDirectionRight(Direction::T dir) {
+T rotateRight(T dir) {
   switch(dir) {
-    case Direction::T::eNorth:
-      return Direction::T::eNorthEast;
-    case Direction::T::eNorthEast:
-      return Direction::T::eSouthEast;
-    case Direction::T::eSouthEast:
-      return Direction::T::eSouth;
-    case Direction::T::eSouth:
-      return Direction::T::eSouthWest;
-    case Direction::T::eSouthWest:
-      return Direction::T::eNorthWest;
-    case Direction::T::eNorthWest:
-      return Direction::T::eNorth;
-    case Direction::T::eNone:
-      return Direction::T::eNone;
+    case T::eNorth:
+      return T::eNorthEast;
+    case T::eNorthEast:
+      return T::eSouthEast;
+    case T::eSouthEast:
+      return T::eSouth;
+    case T::eSouth:
+      return T::eSouthWest;
+    case T::eSouthWest:
+      return T::eNorthWest;
+    case T::eNorthWest:
+      return T::eNorth;
+    case T::eNone:
+      return T::eNone;
     // Just in case.
     default:
       return dir;
