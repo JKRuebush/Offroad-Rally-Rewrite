@@ -51,6 +51,9 @@ add_executable(OffroadRally
     src/agent-impl/agentAStar.cpp
     src/agent-impl/agentAStarOpt.cpp
     
+    src/agent-impl/agentNBAStar.cpp
+    src/agent-impl/agentNBAStarOpt.cpp
+    
     src/agent-impl/agentDijkstra.cpp
     src/agent-impl/agentDijkstraOpt.cpp
 

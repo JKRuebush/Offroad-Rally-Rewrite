@@ -12,7 +12,7 @@ namespace {
 
 struct PointInfo {
   uint roughness;
-  uint pathCost;
+  uint shortestPathCost;
   Point parent;
   Direction::T parentDir;
   bool expanded;
@@ -63,7 +63,7 @@ std::vector<std::pair<Point, Direction::T>> getRelevantNeighbors(
     auto near = api->getDestination(pos, dir);
 
     if(near != pos) {
-      neighbors.emplace_back(near, dir);
+      neighbors.push_back({near, dir});
     }
   }
 
@@ -78,20 +78,20 @@ REGISTER_AGENT(DijkstraOpt)(MapInterface* const api) {
   const Point start = api->getStart();
   const Point finish = api->getFinish();
   std::unordered_map<Point, PointInfo> pointMap;
-  pointMap.emplace(start,
+  pointMap.insert({start,
                    PointInfo{
                        1,                    // roughness
-                       0,                    // pathCost
+                       0,                    // shortestPathCost
                        {-1, -1},             // parent
                        Direction::T::eNone,  // parentDir
                        false                 // expanded
-                   });
+                   }});
 
   std::priority_queue<std::pair<uint, Point>,
                       std::vector<std::pair<uint, Point>>,
                       std::greater<std::pair<uint, Point>>>
       frontier;
-  frontier.emplace(0, start);
+  frontier.push({0, start});
 
   // Dijkstra's algorithm is run.
   while(frontier.size() > 0) {
@@ -100,16 +100,17 @@ REGISTER_AGENT(DijkstraOpt)(MapInterface* const api) {
     // it's safe to ignore anything that doesn't match the cost there.
     // This avoids the complexity of resorting or removing the redundant
     // points when the updated ones are inserted.
-    uint frontWeight;
+    uint frontCost;
     Point frontPoint;
     PointInfo* frontInfo;
     do {
-      frontWeight = frontier.top().first;
       frontPoint = frontier.top().second;
+      frontInfo = &pointMap.at(frontPoint);
+      frontCost = frontier.top().first;
+
       frontier.pop();
 
-      frontInfo = &pointMap.at(frontPoint);
-    } while(frontWeight != frontInfo->pathCost);
+    } while(!frontInfo->expanded && frontCost != frontInfo->shortestPathCost);
 
     frontInfo->expanded = true;
 
@@ -131,22 +132,22 @@ REGISTER_AGENT(DijkstraOpt)(MapInterface* const api) {
           continue;
         }
 
-        uint pathCost =
-            frontInfo->pathCost + frontInfo->roughness + nearInfo.roughness;
+        uint shortestPathCost = frontInfo->shortestPathCost +
+                                frontInfo->roughness + nearInfo.roughness;
 
-        if(pathCost < nearInfo.pathCost) {
-          nearInfo = PointInfo{nearInfo.roughness, pathCost, frontPoint,
+        if(shortestPathCost < nearInfo.shortestPathCost) {
+          nearInfo = PointInfo{nearInfo.roughness, shortestPathCost, frontPoint,
                                nearDir, false};
-          frontier.emplace(pathCost, nearPoint);
+          frontier.push({shortestPathCost, nearPoint});
         }
       } else {
         uint moveCost = api->getMoveCost(frontPoint, nearDir);
         uint nearRoughness = moveCost - frontInfo->roughness;
-        uint pathCost = moveCost + frontInfo->pathCost;
+        uint shortestPathCost = moveCost + frontInfo->shortestPathCost;
 
-        pointMap.emplace(nearPoint, PointInfo{nearRoughness, pathCost,
-                                              frontPoint, nearDir, false});
-        frontier.emplace(pathCost, nearPoint);
+        pointMap.insert({nearPoint, PointInfo{nearRoughness, shortestPathCost,
+                                              frontPoint, nearDir, false}});
+        frontier.push({shortestPathCost, nearPoint});
       }
     }
   }

@@ -12,11 +12,49 @@ namespace {
 
 struct PointInfo {
   uint roughness;
-  uint pathCost;
-  uint estimate;
+  uint shortestPathCost;
+  uint pathEstimate;
   Point parent;
   Direction::T parentDir;
   bool expanded;
+};
+
+struct FrontierEntry {
+  Point pos;
+  uint shortestPathCost;
+  uint pathEstimate;
+
+  inline bool operator==(const FrontierEntry& rhs) {
+    // At the moment there is no need to check `pathEstimate` as the position
+    // being equal implies they are the same.
+    return this->pos == rhs.pos &&
+           this->shortestPathCost == rhs.shortestPathCost;
+  }
+
+  inline bool operator!=(const FrontierEntry& rhs) { return !operator==(rhs); }
+
+  inline bool operator<(const FrontierEntry& rhs) const {
+    if(this->shortestPathCost + this->pathEstimate ==
+       rhs.shortestPathCost + rhs.pathEstimate) {
+      // Note that this being greater than introduces bias.
+      return this->shortestPathCost > rhs.shortestPathCost;
+    }
+
+    return this->shortestPathCost + this->pathEstimate <
+           rhs.shortestPathCost + rhs.pathEstimate;
+  }
+
+  inline bool operator>(const FrontierEntry& rhs) const {
+    return rhs.operator<(*this);
+  }
+
+  inline bool operator<=(const FrontierEntry& rhs) const {
+    return !operator>(rhs);
+  }
+
+  inline bool operator>=(const FrontierEntry& rhs) const {
+    return !operator<(rhs);
+  }
 };
 
 inline uint hueristic(const Point& a, const uint& aRoughness, const Point& b) {
@@ -68,7 +106,7 @@ std::vector<std::pair<Point, Direction::T>> getRelevantNeighbors(
     const auto near = api->getDestination(pos, dir);
 
     if(near != pos) {
-      neighbors.emplace_back(near, dir);
+      neighbors.push_back({near, dir});
     }
   }
 
@@ -85,27 +123,26 @@ REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
 
   // If the start is right next to the finish don't do extra work.
   for(const auto& hex : api->getNeighbors(start)) {
-    if(hex.first == api->getFinish()) {
+    if(hex.first == finish) {
       return std::vector<Direction::T>{hex.second};
     }
   }
 
   std::unordered_map<Point, PointInfo> pointMap;
-  pointMap.emplace(start,
+  pointMap.insert({start,
                    PointInfo{
                        1,                            // roughness
-                       0,                            // pathCost
-                       hueristic(start, 1, finish),  // estimate
+                       0,                            // shortestPathCost
+                       hueristic(start, 1, finish),  // pathEstimate
                        {-1, -1},                     // parent
                        Direction::T::eNone,          // parentDir
                        false                         // expanded
-                   });
+                   }});
 
-  std::priority_queue<std::pair<uint, Point>,
-                      std::vector<std::pair<uint, Point>>,
-                      std::greater<std::pair<uint, Point>>>
+  std::priority_queue<FrontierEntry, std::vector<FrontierEntry>,
+                      std::greater<FrontierEntry>>
       frontier;
-  frontier.emplace(pointMap.at(start).estimate, start);
+  frontier.push(FrontierEntry{start, 0, hueristic(start, 1, finish)});
 
   // A* algorithm is run.
   while(frontier.size() > 0) {
@@ -114,16 +151,17 @@ REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
     // it's safe to ignore anything that doesn't match the cost there.
     // This avoids the complexity of re-sorting or removing the redundant
     // points when the updated ones are inserted.
-    uint frontWeight;
+    uint frontCost;
     Point frontPoint;
     PointInfo* frontInfo;
     do {
-      frontWeight = frontier.top().first;
-      frontPoint = frontier.top().second;
+      frontPoint = frontier.top().pos;
+      frontInfo = &pointMap.at(frontPoint);
+      frontCost = frontier.top().shortestPathCost;
+
       frontier.pop();
 
-      frontInfo = &pointMap.at(frontPoint);
-    } while(frontWeight != frontInfo->pathCost + frontInfo->estimate);
+    } while(!frontInfo->expanded && frontCost != frontInfo->shortestPathCost);
 
     frontInfo->expanded = true;
 
@@ -145,23 +183,27 @@ REGISTER_AGENT(AStarOpt)(MapInterface* const api) {
           continue;
         }
 
-        uint pathCost =
-            frontInfo->pathCost + frontInfo->roughness + nearInfo.roughness;
+        uint shortestPathCost = frontInfo->shortestPathCost +
+                                frontInfo->roughness + nearInfo.roughness;
 
-        if(pathCost < nearInfo.pathCost) {
-          nearInfo = PointInfo{nearInfo.roughness, pathCost, nearInfo.estimate,
-                               frontPoint,         nearDir,  false};
-          frontier.emplace(pathCost + nearInfo.estimate, nearPoint);
+        if(shortestPathCost < nearInfo.shortestPathCost) {
+          nearInfo.shortestPathCost = shortestPathCost;
+          nearInfo.parent = frontPoint;
+          nearInfo.parentDir = nearDir;
+
+          frontier.push(FrontierEntry{nearPoint, shortestPathCost,
+                                      nearInfo.pathEstimate});
         }
       } else {
         const uint moveCost = api->getMoveCost(frontPoint, nearDir);
         const uint nearRoughness = moveCost - frontInfo->roughness;
-        const uint estimate = hueristic(nearPoint, nearRoughness, finish);
-        const uint pathCost = moveCost + frontInfo->pathCost;
+        const uint pathEstimate = hueristic(nearPoint, nearRoughness, finish);
+        const uint shortestPathCost = moveCost + frontInfo->shortestPathCost;
 
-        pointMap.emplace(nearPoint, PointInfo{nearRoughness, pathCost, estimate,
-                                              frontPoint, nearDir, false});
-        frontier.emplace(pathCost + estimate, nearPoint);
+        pointMap.insert(
+            {nearPoint, PointInfo{nearRoughness, shortestPathCost, pathEstimate,
+                                  frontPoint, nearDir, false}});
+        frontier.push(FrontierEntry{nearPoint, shortestPathCost, pathEstimate});
       }
     }
   }

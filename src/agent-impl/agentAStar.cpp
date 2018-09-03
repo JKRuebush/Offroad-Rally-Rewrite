@@ -11,8 +11,8 @@ using Rally::Point;
 namespace {
 
 struct PointInfo {
-  uint pathCost;
-  uint estimate;
+  uint shortestPathCost;
+  uint pathEstimate;
   Point parent;
   Direction::T parentDir;
   bool expanded;
@@ -28,21 +28,23 @@ inline uint hueristic(const Point& a, const Point& b) {
 REGISTER_AGENT(AStar)(MapInterface* const api) {
   const Point start = api->getStart();
   const Point finish = api->getFinish();
+
   std::unordered_map<Point, PointInfo> pointMap;
-  pointMap.emplace(start,
+
+  pointMap.insert({start,
                    PointInfo{
                        0,                         // pathCost
                        hueristic(start, finish),  // estimate
                        {-1, -1},                  // parent
                        Direction::T::eNone,       // parentDir
                        false                      // expanded
-                   });
+                   }});
 
   std::priority_queue<std::pair<uint, Point>,
                       std::vector<std::pair<uint, Point>>,
                       std::greater<std::pair<uint, Point>>>
       frontier;
-  frontier.emplace(pointMap.at(start).estimate, start);
+  frontier.push({hueristic(start, finish), start});
 
   // A* algorithm is run.
   while(frontier.size() > 0) {
@@ -51,16 +53,17 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
     // it's safe to ignore anything that doesn't match the cost there.
     // This avoids the complexity of re-sorting or removing the redundant
     // points when the updated ones are inserted.
-    uint frontWeight;
+    uint frontCost;
     Point frontPoint;
     PointInfo* frontInfo;
     do {
-      frontWeight = frontier.top().first;
       frontPoint = frontier.top().second;
+      frontInfo = &pointMap.at(frontPoint);
+      frontCost = frontier.top().first - frontInfo->pathEstimate;
+
       frontier.pop();
 
-      frontInfo = &pointMap.at(frontPoint);
-    } while(frontWeight != frontInfo->pathCost + frontInfo->estimate);
+    } while(!frontInfo->expanded && frontCost != frontInfo->shortestPathCost);
 
     frontInfo->expanded = true;
 
@@ -72,7 +75,8 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
       const Point nearPoint = near.first;
       const Direction::T nearDir = near.second;
 
-      uint cost = frontInfo->pathCost + api->getMoveCost(frontPoint, nearDir);
+      const uint pathCost =
+          frontInfo->shortestPathCost + api->getMoveCost(frontPoint, nearDir);
 
       if(pointMap.find(nearPoint) != pointMap.end()) {
         PointInfo& nearInfo = pointMap.at(nearPoint);
@@ -83,26 +87,23 @@ REGISTER_AGENT(AStar)(MapInterface* const api) {
           continue;
         }
 
-        if(cost < nearInfo.pathCost) {
-          nearInfo = PointInfo{
-              cost,               // pathCost
-              nearInfo.estimate,  // estimate
-              frontPoint,         // parent
-              nearDir,            // parentDir
-              false               // expanded
-          };
-          frontier.emplace(cost + nearInfo.estimate, nearPoint);
+        if(pathCost < nearInfo.shortestPathCost) {
+          nearInfo.shortestPathCost = pathCost;
+          nearInfo.parent = frontPoint;
+          nearInfo.parentDir = nearDir;
+
+          frontier.push({pathCost + nearInfo.pathEstimate, nearPoint});
         }
       } else {
         const uint estimate = hueristic(nearPoint, finish);
-        pointMap.emplace(nearPoint, PointInfo{
-                                        cost,        // pathCost
+        pointMap.insert({nearPoint, PointInfo{
+                                        pathCost,    // pathCost
                                         estimate,    // estimate
                                         frontPoint,  // parent
                                         nearDir,     // parentDir
                                         false        // expanded
-                                    });
-        frontier.emplace(cost + estimate, nearPoint);
+                                    }});
+        frontier.push({pathCost + estimate, nearPoint});
       }
     }
   }
