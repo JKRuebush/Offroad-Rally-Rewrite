@@ -27,6 +27,32 @@ inline uint hueristic(const Point& a, const Point& b) {
   return a.distanceTo(b) * 2;
 }
 
+// A point might be in the frontier multiple times because the cost has been
+// updated, or it might have been moved into the closed set. The pointMap holds
+// the up to date information, so it's simple to clear out the invalid date.
+// Simply clearing off the top of the frontier is preferable to sorting and
+// validating the frontier as points are added.
+void clearFrontierTop(FrontierQueue& frontier,
+                      const std::unordered_map<Point, PointInfo>& pointMap,
+                      const std::set<Point>& closed) {
+  if(frontier.size() == 0) {
+    return;
+  }
+
+  Point frontPoint = frontier.top().second;
+  const PointInfo* frontInfo = &pointMap.at(frontPoint);
+  uint frontCost = frontier.top().first - frontInfo->pathEstimate;
+
+  while(frontier.size() > 0 && (closed.find(frontPoint) != closed.end() ||
+                                frontCost != frontInfo->shortestPathCost)) {
+    frontier.pop();
+
+    frontPoint = frontier.top().second;
+    frontInfo = &pointMap.at(frontPoint);
+    frontCost = frontier.top().first - frontInfo->pathEstimate;
+  };
+}
+
 void expandFrontier(MapInterface* const api,
                     std::unordered_map<Point, PointInfo>& pointMapA,
                     const std::unordered_map<Point, PointInfo>& pointMapB,
@@ -38,34 +64,21 @@ void expandFrontier(MapInterface* const api,
                     uint& shortestFullPath,
                     uint& shortestPathA,
                     uint shortestPathB) {
-  // A point might be in the frontier multiple times because the cost has
-  // been updated. The up to date cost is necessarily in `pointMapA` so
-  // it's safe to ignore anything that doesn't match the cost there.
-  // This avoids the complexity of resorting or removing the redundant
-  // points when the updated ones are inserted.
-  uint frontCost;
-  Point frontPoint;
-  PointInfo* frontInfo;
-  do {
-    frontPoint = frontier.top().second;
-    frontInfo = &pointMapA.at(frontPoint);
-    frontCost = frontier.top().first - frontInfo->pathEstimate;
+  clearFrontierTop(frontier, pointMapA, closed);
 
-    if(frontier.size() == 0) {
-      return;
-    }
+  if(frontier.size() == 0) {
+    return;
+  }
 
-    frontier.pop();
-
-  } while(closed.find(frontPoint) != closed.end() &&
-          frontCost != frontInfo->shortestPathCost);
+  const Point frontPoint = frontier.top().second;
+  const PointInfo& frontInfo = pointMapA.at(frontPoint);
 
   closed.insert(frontPoint);
 
   // A point is considered only if the pathEstimated cost to reach the end is
   // less than the known shortest path to reach the end.
-  if(frontInfo->shortestPathCost + frontInfo->pathEstimate < shortestFullPath &&
-     frontInfo->shortestPathCost + shortestPathB -
+  if(frontInfo.shortestPathCost + frontInfo.pathEstimate < shortestFullPath &&
+     frontInfo.shortestPathCost + shortestPathB -
              hueristic(frontPoint, source) <
          shortestFullPath) {
     for(const auto& near : api->getNeighbors(frontPoint)) {
@@ -73,7 +86,7 @@ void expandFrontier(MapInterface* const api,
       Direction::T nearDir = near.second;
 
       uint pathCost =
-          frontInfo->shortestPathCost + api->getMoveCost(frontPoint, nearDir);
+          frontInfo.shortestPathCost + api->getMoveCost(frontPoint, nearDir);
 
       if(pointMapA.find(nearPoint) != pointMapA.end()) {
         PointInfo& nearInfo = pointMapA.at(nearPoint);
@@ -116,7 +129,12 @@ void expandFrontier(MapInterface* const api,
     }
   }
 
-  shortestPathA = frontier.top().first;
+  // This clear is technically unneeded, but results in less map looks.
+  clearFrontierTop(frontier, pointMapA, closed);
+
+  if(frontier.size() > 0) {
+    shortestPathA = frontier.top().first;
+  }
 }
 }  // namespace
 
