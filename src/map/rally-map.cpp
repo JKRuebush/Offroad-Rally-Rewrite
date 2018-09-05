@@ -199,6 +199,7 @@ uint RallyMap::calculatePathCost(const std::vector<Direction::T>& path) const {
 std::vector<std::pair<Point, Direction::T>> RallyMap::getNeighbors(
     Point pos) const {
   std::vector<std::pair<Point, Direction::T>> neighborList;
+  neighborList.reserve(6);
 
   for(const auto& dir : Direction::kAllMoveDirections) {
     auto neighbor = getDestination(pos, dir);

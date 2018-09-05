@@ -106,6 +106,7 @@ std::vector<std::pair<Point, Direction::T>> getRelevantNeighbors(
   }
 
   std::vector<std::pair<Point, Direction::T>> neighbors;
+  neighbors.reserve(3);
   for(const auto& dir : directions) {
     const auto near = api->getDestination(pos, dir);
 
