@@ -90,6 +90,7 @@ class RallyMap {
   // either point is outside of the map.
   void setEndPoints(Point nStart, Point nFinish);
 
+  // Sets the start and finish to random Points.
   void randomizeEndPoints();
 
   // Throws an exception if the position is out of bounds.
@@ -125,8 +126,6 @@ class RallyMap {
   RallyMap(Point startPos,
            Point finishPos,
            const std::vector<std::vector<uint>>& mapTemplate);
-  // Copy constructor
-  RallyMap(const RallyMap& other);
 
   // Calculates the cost of the path, and if it ends on the finish.
   std::pair<uint, bool> analyzePath(
@@ -151,8 +150,6 @@ class RallyMap {
   Point getDestination(Point pos, Direction::T dir) const;
 
   std::string toString() const;
-
-  RallyMap& operator=(const RallyMap& other);
 
   friend std::ostream& operator<<(std::ostream& os, const RallyMap& map);
 };

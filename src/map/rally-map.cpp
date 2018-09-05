@@ -148,14 +148,6 @@ RallyMap::RallyMap(Point startPos,
   setMap(startPos, finishPos, mapTemplate);
 }
 
-// Copy constructor
-RallyMap::RallyMap(const RallyMap& other)
-    : width(other.width),
-      height(other.height),
-      start(other.start),
-      finish(other.finish),
-      roughness(other.roughness) {}
-
 // Calculates the cost of the path, and if it ends on the finish.
 std::pair<uint, bool> RallyMap::analyzePath(
     const std::vector<Direction::T>& path) const {
@@ -323,16 +315,6 @@ std::string RallyMap::toString() const {
   out += "|\n";
 
   return out;
-}
-
-RallyMap& RallyMap::operator=(const RallyMap& other) {
-  this->width = other.width;
-  this->height = other.height;
-  this->roughness = other.roughness;
-  this->start = other.start;
-  this->finish = other.finish;
-
-  return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const RallyMap& map) {

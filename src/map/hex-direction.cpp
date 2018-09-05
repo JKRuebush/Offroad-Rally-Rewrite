@@ -45,9 +45,6 @@ T rotateLeft(T dir) {
       return T::eNorth;
     case T::eNone:
       return T::eNone;
-    // Just in case.
-    default:
-      return dir;
   }
 }
 
@@ -69,9 +66,6 @@ T rotateRight(T dir) {
       return T::eNorth;
     case T::eNone:
       return T::eNone;
-    // Just in case.
-    default:
-      return dir;
   }
 }
 

@@ -15,8 +15,8 @@ namespace {
 const int kDefaultNumRaces = 1000;
 const int kMinMapWidth = 3;
 const int kMinMapHeigh = 3;
-const int kMaxMapWidth = 12;
-const int kMaxMapHeight = 12;
+const int kMaxMapWidth = 28;
+const int kMaxMapHeight = 28;
 }  // namespace
 
 using Rally::AgentManager;
